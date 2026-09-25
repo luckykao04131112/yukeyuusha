@@ -186,6 +186,25 @@ dialog{background:linear-gradient(#637f72f5,#30483efc);border-color:#97aca0;bord
 @media(max-width:350px){.hero-art.animated-sheet{height:194px}.realm-portrait{width:80px;height:80px}}
 @media(prefers-reduced-motion:reduce){.hero-art,.enemy-actor canvas,.damage-number{animation:none}.duel-meter i{transition:none}.damage-number{opacity:1}}
 </style>
+  <style>.phase-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-bottom:1px solid #bac9c0;background:#edf3ee}
+.phase-heading h2{font-size:16px;margin:0}.phase-heading p{margin:5px 0 0;font-size:11px;color:#596d63}.contribution{font-size:16px;font-variant-numeric:tabular-nums;color:#865e25;flex:none}.contribution small{display:block;font-size:10px;text-align:right;color:#596d63}
+.phase-row{padding:14px;border-bottom:1px solid #d3dcd6}.phase-row h3{font-size:14px;margin:0 0 6px}.phase-row p{margin:5px 0;font-size:12px;line-height:1.7}.phase-row .actions{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}.phase-row .action-button{width:auto;flex:1;min-width:100px;margin:0}.phase-meta{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:11px;color:#587066}
+.phase-meter{height:5px;background:#dce5de;margin:10px 0}.phase-meter i{display:block;height:100%;background:#4e8671;width:var(--progress)}
+.phase-tabs{display:flex;border-bottom:1px solid #bccbc1;background:#f5f7f3}.phase-tabs button{flex:1;border:0;border-bottom:3px solid transparent;background:none;padding:12px 4px;font-size:13px;color:#586d62}.phase-tabs button.active{color:#294d40;border-color:#49876c;background:#e7f0e9}
+.purpose-picker{padding:10px 14px;border-bottom:1px solid #c7d2ca;background:#f2f6f2}.purpose-picker legend{font-size:12px;padding:0 0 8px;color:#475f52}.purpose-picker fieldset{border:0;padding:0;margin:0}.purpose-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}.purpose-options button{padding:10px 4px;border:1px solid #aabbaf;background:#fff;color:#476653;min-height:44px;border-radius:0;font-size:13px}.purpose-options button+button{border-left:0}.purpose-options button.active{background:#476e5b;color:#fff}.purpose-picker p{font-size:11px;min-height:16px;margin:8px 0 0;color:#647b6c}.policy-row{display:flex;gap:12px;align-items:center;justify-content:space-between;padding-top:10px;font-size:11px}.policy-options{display:flex;gap:0}.policy-options button{border:1px solid #aabbaf;border-radius:0;background:#fff;padding:7px 12px;color:#476653;min-height:34px}.policy-options button.active{background:#e1eadf;border-color:#52745f;color:#284b38}
+.phase-route:not(.show-depth) .route-modes{display:none}
+.encounter-panel{padding:14px;background:#eef2e4;border-block:1px solid #9fac91}.encounter-panel h2{font-size:17px;margin:7px 0}.encounter-panel p{font-size:12px;line-height:1.8;margin:8px 0}.encounter-panel .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.encounter-panel .action-button{font-size:12px;padding:10px 6px;min-height:44px}.encounter-caption{font-size:11px;color:#667346}.encounter-panel .risk-note{color:#875546;font-size:11px}.lore-entry{border-left:3px solid #789887;margin:12px 14px;padding:3px 0 6px 12px}.lore-entry h3{font-size:13px;margin:4px 0}.lore-entry p{font-size:12px;line-height:1.8;margin:6px 0}.lore-entry small{font-size:10px;color:#678070}.phase-row.locked{color:#829187}.phase-footnote{padding:12px 14px;font-size:11px;line-height:1.8;color:#6c7d70;border-bottom:1px solid #d3dcd6}
+@media(max-width:350px){.phase-heading,.phase-row,.purpose-picker,.encounter-panel{padding-left:10px;padding-right:10px}.phase-tabs button{font-size:12px}.policy-row{gap:5px}.policy-options button{padding-inline:9px}}
+.return-progress{display:flex;flex-direction:column;gap:5px;width:100%;font-size:13px;line-height:1.6;color:#315e50}
+.combat-style-fx{position:absolute;left:12%;top:44%;max-width:76%;padding:8px;border:2px solid currentColor;color:#c6f2d9;background:#152725e8;font-size:14px;animation:style-pulse 1s ease-out both;pointer-events:none}
+.combat-style-fx.edge{left:46%;color:#ffe5a1;box-shadow:0 0 16px #ffed8b99}
+.combat-style-fx.blood{color:#ff9494;box-shadow:0 0 20px #e5383899}
+.combat-style-fx.ward{color:#a7eafa;border-radius:50%;padding:20px 10px;box-shadow:0 0 20px #9fe6ed99}
+@keyframes style-pulse{0%{opacity:0;transform:scale(.8)}25%{opacity:1;transform:scale(1.05)}80%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
+@media(prefers-reduced-motion:reduce){.combat-style-fx{animation:none}}
+</style>
+  
+  
   
   
   
@@ -315,16 +334,206 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
 </script>
 <script>(function(root){
   'use strict';
+  const PURPOSES={gather:{name:'尋材',rate:.45,detail:'遇敵較少 · 每層額外素材'},train:{name:'歷練',rate:.7,detail:'戰鬥修為 +25%'},hunt:{name:'討伐',rate:.85,detail:'遇敵較多 · 首領額外玄寶'}};
+  const MANUALS=[
+    {id:'sword-edge',sect:'sword',name:'青鋒訣',cost:30,detail:'攻擊 +10%',stats:{atk:.1}},
+    {id:'sword-step',sect:'sword',name:'流雲步',cost:50,detail:'身法 +25%',stats:{evd:.25}},
+    {id:'sword-boss',sect:'sword',name:'破陣劍意',cost:80,detail:'遠征對霸主、聖獸攻擊 +20%',stats:{}},
+    {id:'herb-guard',sect:'herb',name:'長春經',cost:30,detail:'防禦 +15%',stats:{def:.15}},
+    {id:'herb-gather',sect:'herb',name:'百草識',cost:50,detail:'尋材時每層額外靈草 ×1',stats:{}},
+    {id:'herb-heal',sect:'herb',name:'回春訣',cost:80,detail:'聚元丹回復由六成提高至八成',stats:{}},
+    {id:'blood-edge',sect:'blood',name:'血刃篇',cost:30,detail:'攻擊 +20% · 防禦 −10%',stats:{atk:.2,def:-.1}},
+    {id:'blood-soul',sect:'blood',name:'攝魂術',cost:50,detail:'遠征戰鬥修為額外 +25%',stats:{}},
+    {id:'blood-loot',sect:'blood',name:'奪寶訣',cost:80,detail:'霸主、聖獸靈石 +25% · 防禦 −10%',stats:{def:-.1}}
+  ];
+  const COMMISSIONS={
+    sword:[{id:'patrol',name:'巡山問道',key:'floors',goal:6,reward:12},{id:'slay',name:'除妖護境',key:'kills',goal:5,reward:18},{id:'boss',name:'試劍鎮妖',key:'bosses',goal:2,reward:28}],
+    herb:[{id:'patrol',name:'辨藥巡山',key:'floors',goal:6,reward:12},{id:'materials',name:'百草入庫',key:'materials',goal:12,reward:18},{id:'return',name:'平安歸谷',key:'returns',goal:2,reward:28}],
+    blood:[{id:'patrol',name:'踏查禁地',key:'floors',goal:6,reward:12},{id:'slay',name:'獵取妖魂',key:'kills',goal:5,reward:18},{id:'boss',name:'破禁奪寶',key:'bosses',goal:2,reward:28}]
+  };
+  const CHAINS=[
+    {name:'藥篋與舊刻',affinity:'herb',material:'herb',chapters:[
+      {title:'崖下呼救',text:'碎石滾入暗河，一名採藥少年困在崖下。斷繩旁留著新鮮爪痕。',safe:'垂繩引路',risk:'攀崖救人',ending:'少年交出半張藥圃圖，圖角畫著三道水痕。'},
+      {title:'三道水痕',text:'依圖尋到洞壁，三道刻痕之間長著微光苔。暗河正在漲水。',safe:'拓下石刻',risk:'涉水辨認',ending:'石刻記下藥圃開門之法：聽水三息，叩石兩聲。'},
+      {title:'無主藥圃',text:'石門應聲而開，枯枝間仍有一畦靈草。少年留下的藥篋安放在門邊。',safe:'循徑採藥',risk:'深入藥圃',ending:'你整理藥篋，留下採集手札。此後再入洞窟，舊路不再陌生。'}]},
+    {name:'問道殘劍',affinity:'sword',material:'iron',chapters:[
+      {title:'塔下殘卷',text:'塔壁嵌著半截鐵劍，一頁殘卷被壓在劍柄下，寫著「何為守」。',safe:'抄錄殘卷',risk:'拔出殘劍',ending:'殘卷末尾露出一幅劍圖，指向下一次登塔的鐘室。'},
+      {title:'無聲鐘室',text:'鐘室沒有鐘舌，地上劍痕卻仍在震動。守塔劍靈等待你的回答。',safe:'以守作答',risk:'以劍作答',ending:'劍靈收起鋒芒，讓出通往最高石階的道路。'},
+      {title:'劍痕成篇',text:'最高石階上，前人把最後一式留在斷壁。劍氣仍在石縫間往返。',safe:'觀痕悟劍',risk:'迎鋒試劍',ending:'你將殘卷補成一篇。守與攻不再是彼此相斥的答案。'}]},
+    {name:'潮底歸舟',affinity:'blood',material:'hide',chapters:[
+      {title:'退潮船燈',text:'退潮後，一盞船燈掛在礁縫。燈下封著一張不曾送達的航圖。',safe:'循潮取燈',risk:'潛礁尋圖',ending:'航圖指向一艘沉舟，船主的名字被海水抹去。'},
+      {title:'沉舟回聲',text:'沉舟船艙不斷傳出敲擊聲。黑色禁制纏住艙門，潮水正在回湧。',safe:'沿舷繞行',risk:'破禁入艙',ending:'你找到船主留下的星盤，最後一條航線通向海心遺臺。'},
+      {title:'海心遺臺',text:'星盤與海臺相合，失落的歸航信在石匣中浮現，旁邊仍有守護禁制。',safe:'解匣取信',risk:'探取遺寶',ending:'歸航信終於見光。你在海臺點起船燈，替這段遠行留下終點。'}]}
+  ];
+  const fresh=()=>({version:1,contribution:0,learned:[],equipped:null,progress:{floors:0,kills:0,materials:0,bosses:0,returns:0},claimed:{},lore:[0,0,0],pending:null,chronicle:[]});
+  function install(Game){
+    const D=typeof module!=='undefined'?require('./data.js'):root.XIAN_DATA;
+    const reincarnate=Game.prototype.reincarnate;
+    Game.prototype.reincarnate=function(now){const old=this.state.phaseOne;const state=reincarnate.call(this,now);state.phaseOne.learned=old.learned.slice();state.phaseOne.lore=old.lore.slice();state.phaseOne.chronicle=old.chronicle.map(e=>({...e}));return state;};
+    Object.assign(Game.prototype,{
+      initPhase(){const s=this.state;if(s.phaseOne===undefined)s.phaseOne=fresh();if(s.route){if(s.route.purpose===undefined)s.route.purpose='train';if(s.route.policy===undefined)s.route.policy='safe';}if(s.expedition){s.expedition.purpose??=s.route.purpose;s.expedition.policy??=s.route.policy;s.expedition.encounterOffered??=false;}},
+      activeManual(){const p=this.state.phaseOne;return MANUALS.find(m=>m.id===p?.equipped&&m.sect===this.state.sect&&p.learned.includes(m.id));},
+      phaseStats(v){for(const [k,n] of Object.entries(this.activeManual()?.stats||{}))v[k]*=1+n;},
+      expeditionStats(monster){const v=this.stats();if(this.activeManual()?.id==='sword-boss'&&['boss','mythic'].includes(monster.type))v.atk=Math.floor(v.atk*1.2);return v;},
+      expeditionExp(amount){const purpose=this.state.expedition?.purpose;return Math.ceil(amount*(1+(purpose==='train'?.25:0)+(this.activeManual()?.id==='blood-soul'?.25:0)));},
+      encounterRate(){return PURPOSES[this.state.expedition?.purpose||this.state.route.purpose].rate;},
+      healingRatio(){return this.activeManual()?.id==='herb-heal'?.8:.6;},
+      setPurpose(id){this.alive();if(this.state.expedition||this.state.repeatPending)throw Error('請先完成遠征並停止自動往返。');if(!Object.hasOwn(PURPOSES,id))throw Error('遠征目的無效。');this.state.route.purpose=id;},
+      setPolicy(id){this.alive();if(!['safe','risk'].includes(id))throw Error('行事偏好無效。');if(this.state.expedition||this.state.repeatPending)throw Error('請先完成遠征並停止自動往返。');this.state.route.policy=id;},
+      commissions(){const p=this.state.phaseOne;return (COMMISSIONS[this.state.sect]||[]).map(q=>{const claimed=p.claimed[q.id]||0;return {...q,cycle:claimed+1,current:Math.min(q.goal,Math.max(0,p.progress[q.key]-claimed*q.goal)),ready:p.progress[q.key]>=(claimed+1)*q.goal};});},
+      claimCommission(id){this.alive();const q=this.commissions().find(x=>x.id===id);if(!q?.ready)throw Error('委託尚未完成。');const p=this.state.phaseOne;p.claimed[id]=(p.claimed[id]||0)+1;p.contribution+=q.reward;this.log(q.name+'完成，宗門貢獻 +'+q.reward+'。','reward');},
+      learnManual(id){this.alive();const m=MANUALS.find(x=>x.id===id),p=this.state.phaseOne;if(!m||m.sect!==this.state.sect)throw Error('這不是本宗功法。');if(this.state.expedition||this.state.repeatPending)throw Error('請歸來後再入藏經閣。');if(p.learned.includes(id))throw Error('已收錄此功法。');if(p.contribution<m.cost)throw Error('宗門貢獻不足。');p.contribution-=m.cost;p.learned.push(id);this.log('藏經閣收錄《'+m.name+'》，輪迴後仍留存領悟。','reward');},
+      equipManual(id){this.alive();const p=this.state.phaseOne,m=MANUALS.find(x=>x.id===id);if(this.state.expedition||this.state.repeatPending)throw Error('遠征途中不可更換功法。');if(id!==null&&(!m||m.sect!==this.state.sect||!p.learned.includes(id)))throw Error('尚未領悟本宗功法。');p.equipped=id;this.log(id?'開始修習《'+m.name+'》。':'暫停修習功法。','story');},
+      startPhase(q){q.purpose=this.state.route.purpose;q.policy=this.state.route.policy;q.encounterOffered=false;},
+      beforePhaseFloor(){const p=this.state.phaseOne;if(p.pending&&this.state.tick>=p.pending.due)this.resolveEncounter(p.pending.policy,true);},
+      afterPhaseFloor(q,entry){
+        const s=this.state,p=s.phaseOne;if(!entry||s.expedition!==q||!s.hp)return;
+        const additions=[];const give=(id,count)=>{const loot={id,count,plus:0};q.loot.push(loot);additions.push({...loot});};
+        if(q.purpose==='gather')give(['herb','iron','hide'][(q.dungeon+q.floor)%3],1);
+        if(q.purpose==='gather'&&this.activeManual()?.id==='herb-gather')give('herb',1);
+        const boss=entry.combat&&['boss','mythic'].includes(entry.kind);
+        if(boss&&q.purpose==='hunt'){const pool=D.DUNGEONS[q.dungeon].dropPool.filter(id=>['weapon','armor','accessory'].includes(D.ITEMS_DICT[id].type));give(this.pick(pool.length?pool:['w0']),1);}
+        if(boss&&this.activeManual()?.id==='blood-loot'){const extra=Math.floor(entry.gold*.25);q.gold+=extra;entry.gold+=extra;}
+        if(additions.length){entry.phaseLoot=additions;if(entry.combat)entry.loot.push(...additions);entry.text+=' 沿途另獲 '+additions.reduce((n,l)=>n+l.count,0)+' 份物資，暫存行囊。';}
+        if(s.sect){p.progress.floors++;if(entry.combat)p.progress.kills++;if(boss)p.progress.bosses++;}
+        if(q.dungeon<3&&!q.encounterOffered&&p.lore[q.dungeon]<3&&!p.pending){q.encounterOffered=true;p.pending={dungeon:q.dungeon,chapter:p.lore[q.dungeon],floor:q.floor,started:q.started,due:s.tick+16,policy:q.policy};}
+      },
+      encounter(){const e=this.state.phaseOne.pending;if(!e)return null;const chain=CHAINS[e.dungeon];return {...e,...chain.chapters[e.chapter],chain:chain.name,affinity:chain.affinity};},
+      resolveEncounter(choice,automatic=false){
+        this.alive();if(!['safe','risk'].includes(choice))throw Error('奇遇選擇無效。');const s=this.state,p=s.phaseOne,e=p.pending,q=s.expedition;if(!e||!q||q.started!==e.started||q.dungeon!==e.dungeon)throw Error('這段奇遇已結束。');
+        const chain=CHAINS[e.dungeon],chapter=chain.chapters[e.chapter],affinity=s.sect===chain.affinity;
+        const failed=choice==='risk'&&!affinity&&(q.started+e.chapter*17+s.incarnation*11+e.dungeon*7)%100<35;
+        const lost=failed?Math.min(s.hp-1,Math.ceil(this.stats().hp*.15)):0;s.hp-=lost;
+        const count=failed?0:choice==='risk'?4:2;
+        if(count)q.loot.push({id:chain.material,count:count+(affinity?1:0),plus:0});
+        if(e.chapter===2&&!failed)q.loot.push({id:'essence',count:1,plus:0});
+        const text=chapter.ending+(failed?' 此番深入失利，氣血 −'+lost+'，未能帶回額外物資。':' 收穫已暫存行囊。')+(affinity?' 你以本宗所學辨明了此地玄機。':'');
+        const record={dungeon:e.dungeon,chapter:e.chapter,title:chapter.title,text,choice,automatic,life:s.incarnation};p.chronicle.unshift(record);p.chronicle.length=Math.min(9,p.chronicle.length);p.lore[e.dungeon]++;p.pending=null;
+        const entry=q.entries.find(x=>x.floor===e.floor);if(entry)entry.encounter={...record};this.log(chapter.title+'：'+text,'story');return record;
+      },
+      finishPhase(result,q){
+        const s=this.state,p=s.phaseOne;if(result==='生還'&&p.pending)this.resolveEncounter(p.pending.policy,true);else p.pending=null;
+        if(result==='生還'&&s.sect){const D=root.XIAN_DATA||require('./data.js');p.progress.returns++;p.progress.materials+=q.loot.filter(l=>D.ITEMS_DICT[l.id].type==='mat').reduce((n,l)=>n+l.count,0);}
+      },
+      validatePhase(){
+        const s=this.state,p=s.phaseOne,fail=()=>{throw Error('宗門或奇遇存檔資料不正確。');},n=x=>Number.isSafeInteger(x)&&x>=0&&x<=1e12;
+        if(!p||p.version!==1||!n(p.contribution)||!Array.isArray(p.learned)||p.learned.length>9||new Set(p.learned).size!==p.learned.length||p.learned.some(id=>!MANUALS.some(m=>m.id===id)))fail();
+        if(p.equipped!==null&&(!p.learned.includes(p.equipped)||!MANUALS.some(m=>m.id===p.equipped&&m.sect===s.sect)))fail();
+        if(!p.progress||['floors','kills','materials','bosses','returns'].some(k=>!n(p.progress[k]))||!p.claimed||Array.isArray(p.claimed)||Object.entries(p.claimed).some(([k,v])=>!['patrol','slay','boss','materials','return'].includes(k)||!n(v)))fail();
+        if(!Array.isArray(p.lore)||p.lore.length!==3||p.lore.some(x=>!Number.isInteger(x)||x<0||x>3)||!Array.isArray(p.chronicle)||p.chronicle.length>9)fail();
+        if(p.chronicle.some(e=>!e||!Number.isInteger(e.dungeon)||e.dungeon<0||e.dungeon>2||!Number.isInteger(e.chapter)||e.chapter<0||e.chapter>2||typeof e.title!=='string'||typeof e.text!=='string'||!['safe','risk'].includes(e.choice)||typeof e.automatic!=='boolean'||!n(e.life)))fail();
+        if(!Object.hasOwn(PURPOSES,s.route.purpose)||!['safe','risk'].includes(s.route.policy))fail();
+        const q=s.expedition;if(q&&(!Object.hasOwn(PURPOSES,q.purpose)||!['safe','risk'].includes(q.policy)||typeof q.encounterOffered!=='boolean'))fail();
+        const e=p.pending;if(e!==null&&(!e||!q||e.dungeon!==q.dungeon||e.started!==q.started||!Number.isInteger(e.chapter)||e.chapter!==p.lore[e.dungeon]||e.dungeon>2||e.chapter>=3||!n(e.floor)||e.floor>q.floor||!n(e.due)||!['safe','risk'].includes(e.policy)))fail();
+      }
+    });
+  }
+  const API={PURPOSES,MANUALS,COMMISSIONS,CHAINS,install};root.XIAN_PHASE=API;if(typeof module!=='undefined')module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>(function(root){
+  'use strict';
+  const RELICS=[
+    {id:'relic-herbs',name:'採靈藥簍',region:0,icon:'herb',cost:300,need:6,detail:'尋材每層多得素材 ×2；攻擊 −10%'},
+    {id:'relic-sword',name:'斷岳劍匣',region:1,icon:'w3',cost:300,need:6,detail:'對霸主、聖獸的首擊傷害 +75%'},
+    {id:'relic-tide',name:'回潮玉佩',region:2,icon:'talisman',cost:300,need:6,detail:'受擊將低於三成氣血時，抵擋最多 25% 氣血上限的傷害；每趟一次'}
+  ];
+  const ANOMALIES=[
+    {id:'tide',name:'靈潮湧動',detail:'每層多得素材 ×1；異獸攻擊 +10%'},
+    {id:'resonance',name:'劍痕共鳴',detail:'首擊傷害 +25%；霸主、聖獸防禦 +15%'},
+    {id:'mist',name:'幽霧封山',detail:'首領多給碎片 ×1；異獸身法 +20%'}
+  ];
+  const emptyShards=()=>Object.fromEntries(RELICS.map(r=>[r.id,0]));
+  const fresh=()=>({version:1,target:RELICS[0].id,shards:emptyShards(),cycles:Array(18).fill(0),last:null});
+  const clone=x=>JSON.parse(JSON.stringify(x));
+  const isBoss=m=>['boss','mythic'].includes(m.type);
+  function frame(c,round,side){
+    const p=c.plan,r=Math.max(0,Math.min(c.rounds,round)),hits=Math.min(c.counterattacks,side==='hero'?Math.max(0,r-1):r);
+    let dealt=r?c.firstDamage+(r-1)*c.damage:0;
+    if(r>=2)dealt+=c.secondBonus;
+    if(c.rageStart)dealt+=Math.max(0,r-Math.max(2,c.rageStart)+1)*c.rageBonus;
+    let taken=Math.ceil(hits*c.enemyDamage*(c.evaded?.5:1));
+    if(hits>=1)taken-=c.guardSaved;
+    if(c.wardAt&&hits>=c.wardAt)taken-=c.wardSaved;
+    return {round:r,hero:Math.max(0,p.before-Math.max(0,taken)),enemy:Math.max(0,p.monster.hp-dealt)};
+  }
+  function plan(player,monster,options={}){
+    const before=options.hp??player.hp,maxHp=player.hp,manual=options.manual,relic=options.relic,a=options.anomaly;
+    const m={...monster};if(a==='tide')m.atk=Math.ceil(m.atk*1.1);if(a==='resonance'&&isBoss(m))m.def=Math.ceil(m.def*1.15);if(a==='mist')m.evd=Math.ceil(m.evd*1.2);
+    const damage=Math.max(1,player.atk-m.def),enemyDamage=Math.max(1,m.atk-player.def),evaded=player.evd>m.evd*2;
+    const firstFactor=1+(manual==='sword-edge'?.5:0)+(relic==='relic-sword'&&isBoss(m)?.75:0)+(a==='resonance'?.25:0);
+    const c={damage,enemyDamage,evaded,firstDamage:Math.max(1,Math.floor(damage*firstFactor)),secondBonus:manual==='herb-guard'?Math.ceil(damage*.3):0,rageBonus:manual==='blood-edge'?Math.ceil(damage*.25):0,rageStart:0,guardSaved:0,wardAt:0,wardSaved:0,rounds:0,counterattacks:0,taken:0,plan:{version:1,before,monster:m,manual:manual||null,relic:relic||null,anomaly:a||null}};
+    let hp=before,enemy=m.hp;
+    // Store a compact deterministic formula, not an unbounded list of animation frames.
+    while(enemy>0&&hp>0){
+      c.rounds++;const r=c.rounds;if(c.rageBonus&&!c.rageStart&&hp<=maxHp*.4)c.rageStart=r;
+      if(r===1&&c.rageStart===1)c.firstDamage+=c.rageBonus;
+      const hit=(r===1?c.firstDamage:c.damage)+(r===2?c.secondBonus:0)+(r>1&&c.rageStart&&r>=c.rageStart?c.rageBonus:0);enemy=Math.max(0,enemy-hit);if(!enemy)break;
+      c.counterattacks++;const n=c.counterattacks,mult=evaded?.5:1;
+      let incoming=Math.ceil(n*enemyDamage*mult)-Math.ceil((n-1)*enemyDamage*mult);
+      if(n===1&&manual==='herb-guard'){c.guardSaved=Math.ceil(incoming*.5);incoming-=c.guardSaved;}
+      if(incoming>0&&relic==='relic-tide'&&options.wardAvailable&&!c.wardAt&&hp-incoming<=maxHp*.3){c.wardAt=n;c.wardSaved=Math.min(incoming,Math.ceil(maxHp*.25));incoming-=c.wardSaved;}
+      hp=Math.max(0,hp-incoming);
+    }
+    c.taken=before-hp;return c;
+  }
+  function install(Game){
+    const D=typeof module!=='undefined'?require('./data.js'):root.XIAN_DATA;
+    const P=typeof module!=='undefined'?require('./phase-one.js'):root.XIAN_PHASE;
+    for(const r of RELICS){D.ITEMS_DICT[r.id]={id:r.id,name:r.name,type:'accessory',price:3000,sell:300,rare:4,base:0,maxPlus:0,stats:{},growth:{}};D.ITEM_ART[r.id]=D.ITEM_ART[r.icon];}
+    P.MANUALS.find(m=>m.id==='sword-edge').detail='攻擊 +10%；遠征首擊傷害 +50%';
+    P.MANUALS.find(m=>m.id==='herb-guard').detail='防禦 +15%；遠征首次受擊減半，次擊傷害 +30%';
+    P.MANUALS.find(m=>m.id==='blood-edge').detail='攻擊 +20%・防禦 −10%；遠征氣血 ≤40% 時傷害再 +25%';
+    const init=Game.prototype.initPhase,start=Game.prototype.startPhase,stats=Game.prototype.phaseStats,after=Game.prototype.afterPhaseFloor,finish=Game.prototype.finishPhase,validate=Game.prototype.validatePhase,record=Game.prototype.recordRun,rebirth=Game.prototype.reincarnate;
+    Game.prototype.initPhase=function(){init.call(this);if(this.state.phaseTwo===undefined)this.state.phaseTwo=fresh();const q=this.state.expedition;if(q&&q.phaseTwo===undefined)q.phaseTwo={anomaly:null,shards:emptyShards(),wardUsed:false,loreBefore:this.state.phaseOne.lore.reduce((n,x)=>n+x,0)};};
+    Game.prototype.startPhase=function(q){start.call(this,q);q.phaseTwo={anomaly:this.nextAnomaly(q.dungeon).id,shards:emptyShards(),wardUsed:false,loreBefore:this.state.phaseOne.lore.reduce((n,x)=>n+x,0)};};
+    Game.prototype.phaseStats=function(v){stats.call(this,v);if(this.activeRelic()?.id==='relic-herbs')v.atk*=.9;};
+    Game.prototype.afterPhaseFloor=function(q,e){after.call(this,q,e);if(this.state.expedition!==q||!this.state.hp)return;const bonus=[];const add=(id,count)=>{const l={id,count,plus:0};q.loot.push(l);bonus.push({...l});};
+      if(q.phaseTwo.anomaly==='tide')add(['herb','iron','hide'][(q.floor+q.dungeon)%3],1);
+      if(q.purpose==='gather'&&this.activeRelic()?.id==='relic-herbs')add(['herb','iron','hide'][(q.floor+q.dungeon)%3],2);
+      if(e.combat&&['boss','mythic'].includes(e.kind)){const r=RELICS[q.dungeon%3];q.phaseTwo.shards[r.id]+=q.phaseTwo.anomaly==='mist'?2:1;if(this.rng()<.1){if(this.hasRelic(r.id))q.phaseTwo.shards[r.id]+=2;else add(r.id,1);}}
+      if(bonus.length){if(e.combat)e.loot.push(...bonus);e.phaseLoot=[...(e.phaseLoot||[]),...bonus];}
+    };
+    Game.prototype.finishPhase=function(result,q){finish.call(this,result,q);const p=this.state.phaseTwo,x=q.phaseTwo;if(result==='生還'){for(const r of RELICS)p.shards[r.id]+=x.shards[r.id];p.cycles[q.dungeon]++;}
+      const summary={result,dungeon:q.dungeon,gold:result==='生還'?q.gold:0,shards:result==='生還'?{...x.shards}:emptyShards(),found:result==='生還'?q.loot.filter(l=>RELICS.some(r=>r.id===l.id)).map(l=>l.id):[],clues:Math.max(0,this.state.phaseOne.lore.reduce((n,v)=>n+v,0)-x.loreBefore),commissions:this.commissions().filter(c=>c.ready).map(c=>c.name),at:this.state.tick};p.last=summary;x.summary=summary;
+    };
+    Game.prototype.recordRun=function(result){const q=this.state.expedition;record.call(this,result);if(q&&this.state.history[0]&&q.phaseTwo?.summary)this.state.history[0].phaseTwo=clone(q.phaseTwo.summary);};
+    Game.prototype.reincarnate=function(now){const old=this.state.phaseTwo,s=rebirth.call(this,now);s.phaseTwo.target=old.target;s.phaseTwo.shards={...old.shards};s.phaseTwo.cycles=old.cycles.slice();return s;};
+    Game.prototype.validatePhase=function(){validate.call(this);const p=this.state.phaseTwo,q=this.state.expedition,fail=()=>{throw Error('法寶或異象存檔資料不正確。');},n=x=>Number.isSafeInteger(x)&&x>=0&&x<=1e12,shards=v=>v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).length===3&&RELICS.every(r=>n(v[r.id]));
+      if(!p||p.version!==1||p.target!==null&&!RELICS.some(r=>r.id===p.target)||!shards(p.shards)||!Array.isArray(p.cycles)||p.cycles.length!==18||!p.cycles.every(n))fail();
+      if(q){const x=q.phaseTwo;if(!x||x.anomaly!==null&&!ANOMALIES.some(a=>a.id===x.anomaly)||!shards(x.shards)||typeof x.wardUsed!=='boolean'||!n(x.loreBefore)||x.loreBefore>9)fail();}
+      for(const v of [p.last,...this.state.history.map(h=>h.phaseTwo)].filter(v=>v!==null&&v!==undefined))if(!v||!['生還','撤退','昏厥','身死'].includes(v.result)||!Number.isInteger(v.dungeon)||!D.DUNGEONS[v.dungeon]||!n(v.gold)||!n(v.at)||!shards(v.shards)||!n(v.clues)||v.clues>9||!Array.isArray(v.found)||v.found.length>100||v.found.some(id=>!RELICS.some(r=>r.id===id))||!Array.isArray(v.commissions)||v.commissions.length>3||v.commissions.some(t=>typeof t!=='string'||t.length>50))fail();
+      const entries=[...(q?.entries||[]),...this.state.history.flatMap(h=>h.entries||[]),...this.state.logs.map(l=>l.detail).filter(Boolean)];
+      for(const e of entries){const c=e.combat;if(!c||c.plan===undefined)continue;const v=c.plan,m=v?.monster;
+        if(!v||v.version!==1||!n(v.before)||!m||!['hp','atk','def','evd'].every(k=>n(m[k]))||typeof m.name!=='string'||m.name.length>100||!['normal','elite','boss','mythic'].includes(m.type)||v.manual!==null&&!P.MANUALS.some(x=>x.id===v.manual)||v.relic!==null&&!RELICS.some(x=>x.id===v.relic)||v.anomaly!==null&&!ANOMALIES.some(x=>x.id===v.anomaly)||!['firstDamage','secondBonus','rageBonus','rageStart','guardSaved','wardAt','wardSaved','counterattacks'].every(k=>n(c[k]))||c.counterattacks>c.rounds||c.wardAt>c.counterattacks||c.rageStart>c.rounds)fail();
+        const end=frame(c,c.rounds,'enemy');if(end.hero!==e.hpRemaining||Math.min(v.before,c.taken)!==e.hpLost)fail();
+      }
+    };
+    Object.assign(Game.prototype,{
+      activeRelic(){const item=this.item(this.state.equipment.accessory);return RELICS.find(r=>r.id===item?.id);},
+      hasRelic(id){return this.state.inventory.some(i=>i.id===id);},
+      nextAnomaly(dungeon){return ANOMALIES[(dungeon+this.state.phaseTwo.cycles[dungeon])%3];},
+      trackRelic(id){this.alive();if(id!==null&&!RELICS.some(r=>r.id===id))throw Error('法寶目標無效。');this.state.phaseTwo.target=id;},
+      craftRelic(id){this.alive();const r=RELICS.find(x=>x.id===id),s=this.state;if(!r)throw Error('法寶配方不存在。');if(s.expedition||s.repeatPending)throw Error('歸來並停止往返後才能打造。');if(this.hasRelic(id))throw Error('已擁有此法寶。');if(s.phaseTwo.shards[id]<r.need||s.gold<r.cost)throw Error('碎片或靈石不足。');s.phaseTwo.shards[id]-=r.need;s.gold-=r.cost;const item=this.add(id);this.log('六枚碎片合一，鑄成《'+r.name+'》。','reward');return item;},
+      expeditionCombat(monster,preview=false,anomaly){const q=this.state.expedition,a=anomaly===undefined?q?.phaseTwo.anomaly:anomaly;const c=plan(this.expeditionStats(monster),monster,{hp:this.state.hp,manual:this.activeManual()?.id,relic:this.activeRelic()?.id,anomaly:a,wardAvailable:!preview&&!!q&&!q.phaseTwo.wardUsed});if(!preview&&c.wardAt)q.phaseTwo.wardUsed=true;return c;},
+      forecast(dungeon,target){const a=this.nextAnomaly(dungeon).id,combat=(floor,type)=>this.expeditionCombat(this.monster(dungeon,floor,type),true,a);const boss=combat(target,target===100?'mythic':'boss');let expected=boss.taken;for(let f=1;f<target;f++)expected+=this.encounterRate()*(combat(f,'normal').taken*.88+combat(f,'elite').taken*.12);return {boss:boss.taken,expected:Math.ceil(expected),danger:boss.taken>=this.state.hp||expected>=this.state.hp*.9};}
+    });
+  }
+  const API={RELICS,ANOMALIES,plan,frame,install};root.XIAN_PHASE_TWO=API;if(typeof module!=='undefined')module.exports=API;
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>(function(root){
+  'use strict';
   const D=typeof module!=='undefined'?require('./data.js'):root.XIAN_DATA;
   const Story=typeof module!=='undefined'?require('./story.js'):root.XIAN_STORY;
   const copy=x=>JSON.parse(JSON.stringify(x));
   const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
   const gear=id=>['weapon','armor','accessory'].includes(D.ITEMS_DICT[id]?.type);
   class XianGame {
-    constructor(state,now=Date.now()) {this.state=state||this.initial(now);const s=this.state;s.route??={dungeon:s.expedition?.dungeon||0,target:s.expedition?.target||3,mode:'custom',repeat:false};s.repeatPending??=false;s.lives??=[];s.echoes??=[];}
+    constructor(state,now=Date.now()) {this.state=state||this.initial(now);const s=this.state;s.route??={dungeon:s.expedition?.dungeon||0,target:s.expedition?.target||3,mode:'custom',repeat:false};s.repeatPending??=false;s.lives??=[];s.echoes??=[];this.initPhase();}
     initial(now){
       const s={version:1,serial:0,seed:Math.floor(Math.random()*4294967295)||1,tick:0,ageTicks:0,age:16,realm:0,exp:0,gold:1200,hp:30,lifeBonus:0,incarnation:1,dead:false,deathReason:'',inventory:[],bag:{herb:6,iron:3,hide:3,heal:2},equipment:{weapon:null,armor:null,accessory:null},book:{monsters:[],items:[]},sect:null,rank:0,abode:false,expedition:null,best:{},cleared:{},logs:[],history:[],market:[],marketCycle:-1,settings:{fast:false,autoHeal:false,paused:false},route:{dungeon:0,target:3,mode:'shallow',repeat:false},repeatPending:false,lives:[],echoes:[],lastTime:now};
-      this.state=s;const w=this.add('w0'),a=this.add('a0');s.equipment.weapon=w.uid;s.equipment.armor=a.uid;this.refreshMarket();s.hp=this.stats().hp;this.log('初入仙途，身攜桃木劍與布衣。','story');return s;
+      this.state=s;this.initPhase();const w=this.add('w0'),a=this.add('a0');s.equipment.weapon=w.uid;s.equipment.armor=a.uid;this.refreshMarket();s.hp=this.stats().hp;this.log('初入仙途，身攜桃木劍與布衣。','story');return s;
     }
     rng(){let x=this.state.seed>>>0;x^=x<<13;x^=x>>>17;x^=x<<5;this.state.seed=x>>>0;return this.state.seed/4294967296;}
     pick(a){return a[Math.floor(this.rng()*a.length)];}
@@ -343,35 +552,35 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
       const s=this.state,r=D.REALMS[s.realm],b=this.bookBonus(),v={hp:r.hp+b.hp,atk:r.atk+b.atk,def:r.def+b.def,evd:r.evd,luck:5};
       for(const uid of Object.values(s.equipment)){const item=this.item(uid);if(!item)continue;const d=D.ITEMS_DICT[item.id];if(d.type==='weapon')v.atk+=(d.base||0)+item.plus;if(d.type==='armor')v.def+=(d.base||0)+item.plus;for(const k of Object.keys(v))v[k]+=(d.stats[k]||0)+(d.growth[k]||0)*s.realm*3;}
       const sect=D.SECTS.find(x=>x.id===s.sect);if(sect)for(const k of ['hp','atk','def'])v[k]*=1+sect[k]*s.rank;
-      for(const k of Object.keys(v))v[k]=Math.max(k==='hp'?1:0,Math.floor(v[k]));return v;
+      this.phaseStats(v);for(const k of Object.keys(v))v[k]=Math.max(k==='hp'?1:0,Math.floor(v[k]));return v;
     }
     alive(){if(this.state.dead)throw Error('此世已終，請先輪迴。');}
     equip(uid){this.alive();if(this.state.expedition)throw Error('遠征途中無法更換玄寶。');const i=this.item(uid);if(!i)throw Error('找不到這件玄寶。');const slot=D.ITEMS_DICT[i.id].type;this.state.equipment[slot]=this.state.equipment[slot]===uid?null:uid;this.state.hp=Math.min(this.state.hp,this.stats().hp);}
-    use(id){this.alive();if(D.ITEMS_DICT[id]?.type!=='pill')throw Error('這不是丹藥。');if(id==='foundation')throw Error('築基丹將在突破築基初期時自動使用。');if(id==='heal'&&this.state.hp>=this.stats().hp)throw Error('氣血已滿。');this.consume(id,1);if(id==='heal'){const gain=Math.ceil(this.stats().hp*.6);this.state.hp=Math.min(this.stats().hp,this.state.hp+gain);this.log('服用聚元丹，氣血回復。','heal');}if(id==='longevity'){this.state.lifeBonus+=10;this.log('服用延壽丹，此世壽元增加十年。','heal');}}
+    use(id){this.alive();if(D.ITEMS_DICT[id]?.type!=='pill')throw Error('這不是丹藥。');if(id==='foundation')throw Error('築基丹將在突破築基初期時自動使用。');if(id==='heal'&&this.state.hp>=this.stats().hp)throw Error('氣血已滿。');this.consume(id,1);if(id==='heal'){const gain=Math.ceil(this.stats().hp*this.healingRatio());this.state.hp=Math.min(this.stats().hp,this.state.hp+gain);this.log('服用聚元丹，氣血回復。','heal');}if(id==='longevity'){this.state.lifeBonus+=10;this.log('服用延壽丹，此世壽元增加十年。','heal');}}
     breakthrough(){this.alive();const s=this.state;if(s.expedition)throw Error('請先完成遠征。');if(s.realm===15)throw Error('已臻元嬰後期。');if(s.exp<D.REALMS[s.realm].maxExp)throw Error('修為尚未圓滿。');if(s.realm===4)this.consume('foundation',1);s.exp=0;s.realm++;s.hp=this.stats().hp;this.log('引劫成功，踏入'+D.REALMS[s.realm].name+'！','breakthrough');}
     monster(dungeon,floor,type){const base=D.MONSTERS_DICT[dungeon+'-'+type],scale=1+(floor-1)*.018;return {...base,hp:Math.ceil(base.hp*scale),atk:Math.ceil(base.atk*scale),def:Math.ceil(base.def*scale),evd:Math.ceil(base.evd*scale)};}
     static combat(player,monster,firstStrike=false){const damage=Math.max(1,player.atk-monster.def),rounds=Math.ceil(monster.hp/damage),enemyDamage=Math.max(1,monster.atk-player.def),evaded=player.evd>monster.evd*2;const counterattacks=Math.max(0,rounds-(firstStrike?1:0));return {damage,rounds,enemyDamage,evaded,...(firstStrike?{counterattacks}:{}),taken:Math.ceil(counterattacks*enemyDamage*(evaded?.5:1))};}
     routeTarget(dungeon,mode){const floors=D.DUNGEONS[dungeon]?.floors||10;return mode==='shallow'?3:mode==='deep'?Math.max(5,Math.min(12,Math.ceil(floors*.6))):mode==='boss'?Math.min(100,floors):this.state.route.target;}
     setRoute(dungeon,mode,target){this.alive();if(this.state.expedition||this.state.repeatPending)throw Error('請先停止自動往返並完成目前遠征。');if(!D.DUNGEONS[dungeon]||this.state.realm<D.DUNGEONS[dungeon].recommended)throw Error('秘境尚未開放。');if(!['shallow','deep','boss','custom'].includes(mode))throw Error('探索方式無效。');const floor=mode==='custom'?target:this.routeTarget(dungeon,mode);if(!Number.isInteger(floor)||floor<1||floor>100)throw Error('目標須為 1 至 100 層。');Object.assign(this.state.route,{dungeon,mode,target:floor});}
     toggleRepeat(enabled){this.alive();this.state.route.repeat=!!enabled;if(!enabled)this.state.repeatPending=false;}
-    forecast(dungeon,target){const player=this.stats(),boss=XianGame.combat(player,this.monster(dungeon,target,target===100?'mythic':'boss'));let expected=boss.taken;for(let f=1;f<target;f++)expected+=.7*(XianGame.combat(player,this.monster(dungeon,f,'normal')).taken*.88+XianGame.combat(player,this.monster(dungeon,f,'elite')).taken*.12);return {boss:boss.taken,expected:Math.ceil(expected),danger:boss.taken>=this.state.hp||expected>=this.state.hp*.9};}
-    start(dungeon,target){this.alive();const s=this.state,d=D.DUNGEONS[dungeon];if(s.expedition)throw Error('已有進行中的遠征。');if(!d||s.realm<d.recommended)throw Error('境界不足，秘境尚未開放。');if(!Number.isInteger(target)||target<1||target>100)throw Error('目標須為 1 至 100 層。');if(s.hp<this.stats().hp*.25)throw Error('氣血過低，請先休養或服丹。');s.repeatPending=false;if(s.route.dungeon!==dungeon||s.route.target!==target)s.route.mode='custom';Object.assign(s.route,{dungeon,target});s.expedition={dungeon,target,floor:0,ticks:0,loot:[],gold:0,started:s.tick,battles:0,entries:[]};this.log('啟程前往'+d.name+'。'+Story.profiles[dungeon].arrival,'story',{title:Story.profiles[dungeon].chapter,floor:0});}
+    forecast(dungeon,target){const combat=(floor,type)=>{const m=this.monster(dungeon,floor,type);return XianGame.combat(this.expeditionStats(m),m,true);},boss=combat(target,target===100?'mythic':'boss');let expected=boss.taken;for(let f=1;f<target;f++)expected+=this.encounterRate()*(combat(f,'normal').taken*.88+combat(f,'elite').taken*.12);return {boss:boss.taken,expected:Math.ceil(expected),danger:boss.taken>=this.state.hp||expected>=this.state.hp*.9};}
+    start(dungeon,target){this.alive();const s=this.state,d=D.DUNGEONS[dungeon];if(s.expedition)throw Error('已有進行中的遠征。');if(!d||s.realm<d.recommended)throw Error('境界不足，秘境尚未開放。');if(!Number.isInteger(target)||target<1||target>100)throw Error('目標須為 1 至 100 層。');if(s.hp<this.stats().hp*.25)throw Error('氣血過低，請先休養或服丹。');s.repeatPending=false;if(s.route.dungeon!==dungeon||s.route.target!==target)s.route.mode='custom';Object.assign(s.route,{dungeon,target});s.expedition={dungeon,target,floor:0,ticks:0,loot:[],gold:0,started:s.tick,battles:0,entries:[]};this.startPhase(s.expedition);this.log('啟程前往'+d.name+'。'+Story.profiles[dungeon].arrival,'story',{title:Story.profiles[dungeon].chapter,floor:0});}
     retreat(){this.alive();if(!this.state.expedition)throw Error('目前沒有遠征。');this.recordRun('撤退');this.state.expedition=null;this.toggleRepeat(false);this.log('你記住來路，趁著霧色折返。未入庫的行囊遺在山中，人卻平安回到了洞府。','danger');}
-    recordRun(result){const s=this.state,q=s.expedition;if(!q)return;s.history.unshift({dungeon:q.dungeon,floor:q.floor,target:q.target,result,gold:result==='生還'?q.gold:0,loot:result==='生還'?copy(q.loot):[],at:s.tick,entries:copy(q.entries||[])});s.history.length=Math.min(20,s.history.length);}
+    recordRun(result){const s=this.state,q=s.expedition;if(!q)return;if(result!=='生還')this.finishPhase(result,q);s.history.unshift({dungeon:q.dungeon,floor:q.floor,target:q.target,result,gold:result==='生還'?q.gold:0,loot:result==='生還'?copy(q.loot):[],at:s.tick,entries:copy(q.entries||[])});s.history.length=Math.min(20,s.history.length);}
     knockout(reason){const s=this.state;this.recordRun('昏厥');s.expedition=null;s.route.repeat=false;s.repeatPending=false;const lost=Math.floor(s.gold*.2);s.gold-=lost;s.age+=2;s.hp=1;this.log(reason+'。再度醒來已在洞府，行囊不見了，鬢邊也多了幾縷白。損失 '+lost+' 靈石，折壽兩年。','danger');this.checkAge();}
     explore(){
-      const s=this.state,q=s.expedition;if(!q)return;q.entries??=[];q.floor++;s.best[q.dungeon]=Math.max(s.best[q.dungeon]||0,q.floor);
+      const s=this.state,q=s.expedition;if(!q)return;this.beforePhaseFloor();q.entries??=[];q.floor++;s.best[q.dungeon]=Math.max(s.best[q.dungeon]||0,q.floor);
       const past=s.lives.find(l=>l.dungeon===q.dungeon),echo=past?past.incarnation+':'+q.dungeon:null;
       if(past&&q.floor===2&&!s.echoes.includes(echo)){s.echoes.push(echo);this.log('石壁上有一道似曾相識的劍痕。你想起第 '+past.incarnation+' 世曾到過'+D.DUNGEONS[q.dungeon].name+'第 '+past.floor+' 層，那時你仍是'+D.REALMS[past.realm].name+'。','memory');}
       const final=q.floor===q.target,type=q.floor===100?'mythic':final?'boss':this.rng()<.12?'elite':'normal';
-      if(final||q.floor===100||this.rng()<.7){
+      if(final||q.floor===100||this.rng()<this.encounterRate()){
         const m=this.monster(q.dungeon,q.floor,type);if(!s.book.monsters.includes(m.id))s.book.monsters.push(m.id);
         if(s.settings.autoHeal&&s.hp<this.stats().hp*.55&&s.bag.heal>0)this.use('heal');
-        const c=XianGame.combat(this.stats(),m,true),beforeHp=s.hp,lootStart=q.loot.length,goldBefore=q.gold;s.hp=Math.max(0,s.hp-c.taken);q.battles++;
+        const c=this.expeditionCombat(m),beforeHp=s.hp,lootStart=q.loot.length,goldBefore=q.gold;s.hp=Math.max(0,s.hp-c.taken);q.battles++;
         const weapon=this.item(s.equipment.weapon),narrative=Story.battle(q,s.incarnation,m,c,s.hp,weapon?D.ITEMS_DICT[weapon.id].name:null);
         const entry={at:s.tick,floor:q.floor,kind:type,monster:m.id,...narrative,combat:c,hpLost:Math.min(beforeHp,c.taken),hpRemaining:s.hp,loot:[],gold:0};
         if(!s.hp){q.entries.push(entry);this.log(entry.text,'danger',entry);this.knockout('不敵'+m.name);return;}
-        const scale=Math.pow(1.28,q.dungeon);q.gold+=Math.round((type==='boss'?100:12)*scale);this.gainExp(Math.ceil(8*scale));
+        const scale=Math.pow(1.28,q.dungeon);q.gold+=Math.round((type==='boss'?100:12)*scale);this.gainExp(this.expeditionExp(Math.ceil(8*scale)));
         q.loot.push({id:this.pick(['herb','iron','hide']),count:type==='boss'?4:1,plus:0});
         if(type!=='normal'||this.rng()<.16)q.loot.push({id:'essence',count:1,plus:0});
         if(this.rng()<.22||final){const id=this.pick(D.DUNGEONS[q.dungeon].dropPool);q.loot.push({id,count:1,plus:gear(id)?1+Math.floor(this.rng()*10):0});}
@@ -379,7 +588,8 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
         if(type==='mythic'){q.gold+=100000;q.loot.push({id:'artifact',count:1,plus:0});this.log('太古聖獸伏誅，造化神印現世！','breakthrough');}
         entry.loot=copy(q.loot.slice(lootStart));entry.gold=q.gold-goldBefore;q.entries.push(entry);this.log(entry.text,type==='boss'||type==='mythic'?'boss':'battle',entry);
       }else{const entry={at:s.tick,floor:q.floor,kind:'quiet',title:'山徑拾光',text:Story.passage(q,s.incarnation)};q.entries.push(entry);this.log(entry.text,'quiet',entry);}
-      if(final){for(const loot of q.loot)this.add(loot.id,loot.count,loot.plus);s.gold+=q.gold;s.cleared[q.dungeon]=true;this.recordRun('生還');this.log('山門前的燈火還亮著。你自'+D.DUNGEONS[q.dungeon].name+'生還，將 '+q.gold+' 靈石與 '+q.loot.length+' 份戰利品放入庫中。','reward');s.expedition=null;s.repeatPending=s.route.repeat;}
+      this.afterPhaseFloor(q,q.entries.at(-1));
+      if(final){this.finishPhase('生還',q);for(const loot of q.loot)this.add(loot.id,loot.count,loot.plus);s.gold+=q.gold;s.cleared[q.dungeon]=true;this.recordRun('生還');this.log('山門前的燈火還亮著。你自'+D.DUNGEONS[q.dungeon].name+'生還，將 '+q.gold+' 靈石與 '+q.loot.length+' 份戰利品放入庫中。','reward');s.expedition=null;s.repeatPending=s.route.repeat;}
     }
     join(id){this.alive();const s=this.state;if(s.expedition)throw Error('請先完成遠征。');if(s.realm<5)throw Error('築基初期方可拜入宗門。');if(s.sect)throw Error('已拜入宗門，此世不可改投。');if(!D.SECTS.some(x=>x.id===id))throw Error('宗門不存在。');s.sect=id;s.rank=1;s.hp=Math.min(s.hp,this.stats().hp);this.log('拜入'+D.SECTS.find(x=>x.id===id).name+'，授外門弟子之位。','reward');}
     duel(){this.alive();const s=this.state;if(s.expedition)throw Error('請先完成遠征。');if(!s.sect||s.rank>=5)throw Error('目前無可挑戰的同門。');const m=D.SECT_BOSS[s.rank+1],c=XianGame.combat(this.stats(),m);if(s.hp<=c.taken){this.knockout('生死鬥敗於'+m.name);return false;}s.hp-=c.taken;s.rank++;s.hp=Math.min(s.hp,this.stats().hp);this.log('勝過'+m.name+'，晉升'+D.RANKS[s.rank]+'！','breakthrough');return true;}
@@ -421,9 +631,13 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
       if(s.expedition){const q=s.expedition;if(s.dead||!D.DUNGEONS[q.dungeon]||!Number.isInteger(q.target)||!num(q.target,1,100)||!Number.isInteger(q.floor)||!num(q.floor,0,q.target-1)||!num(q.ticks)||!num(q.gold)||!Array.isArray(q.loot)||q.loot.length>1000||!q.loot.every(validLoot))fail();}
       if(s.logs.length>80||s.logs.some(l=>!l||typeof l.text!=='string'||typeof l.type!=='string'||!num(l.at)||!num(l.age))||s.history.length>20||s.history.some(h=>!h||!D.DUNGEONS[h.dungeon]||typeof h.result!=='string'||!num(h.floor)||!num(h.gold)||!Array.isArray(h.loot)||!h.loot.every(validLoot)))fail();
       if(s.ageTicks>=120||s.exp>D.REALMS[s.realm].maxExp||s.hp>new XianGame(s).stats().hp)fail();
-      return new XianGame(s);
+      const game=new XianGame(s);game.validatePhase();return game;
     }
   }
+  const Phase=typeof module!=='undefined'?require('./phase-one.js'):root.XIAN_PHASE;
+  Phase.install(XianGame);
+  const PhaseTwo=typeof module!=='undefined'?require('./phase-two.js'):root.XIAN_PHASE_TWO;
+  PhaseTwo.install(XianGame);
   root.XianGame=XianGame;if(typeof module!=='undefined')module.exports=XianGame;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
@@ -617,6 +831,7 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
   const stageFor=realm=>stages.filter(x=>realm>=x.min).at(-1);
   // Presentation only: cumulative rounding must match XianGame.combat exactly.
   function frameAt(b,round,side){
+    if(b.entry.combat.plan)return (typeof module!=='undefined'?require('./phase-two.js'):root.XIAN_PHASE_TWO).frame(b.entry.combat,round,side);
     const c=b.entry.combat,r=Math.max(0,Math.min(c.rounds,round));
     const retaliation=Math.min(c.counterattacks??c.rounds,side==='hero'?Math.max(0,r-1):r);
     return {round:r,hero:Math.max(0,b.before-Math.ceil(retaliation*c.enemyDamage*(c.evaded?.5:1))),enemy:Math.max(0,b.monster.hp-r*c.damage)};
@@ -632,7 +847,7 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
       // Visual failures must never roll back or repeat the economic transaction.
       try{if(context&&enabled()){
         const entry=q.entries.at(-1);
-        if(entry?.combat){const monster=this.monster(context.dungeon,entry.floor,entry.kind),before=entry.hpRemaining+entry.hpLost;
+        if(entry?.combat){const monster=entry.combat.plan?.monster||this.monster(context.dungeon,entry.floor,entry.kind),before=entry.hpRemaining+entry.hpLost;
           receive(JSON.parse(JSON.stringify({...context,entry,monster,before,maxHp:Math.max(before,this.stats().hp)})));
         }else if(entry)onQuiet(JSON.parse(JSON.stringify({...context,entry})));
       }}catch(error){console.error('Battle presentation:',error);}
@@ -759,17 +974,22 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
       this.animate(slash,frames,{duration:330,delay:hero&&family==='axe'?210:100});
       const float=document.createElement('b');float.className='damage-number '+(hero?'enemy-damage':'hero-damage');float.textContent='−'+damage+(label?' '+label:'');this.find('.battle-floats').append(float);setTimeout(()=>float.remove(),950);
     }
+    styleEffect(kind,label){
+      const node=document.createElement('span');node.className='combat-style-fx '+kind;node.textContent=label;this.find('.battle-floats').append(node);setTimeout(()=>node.remove(),1100);
+    }
     step(){
       if(this.done){this.startNext();return;}clearTimeout(this.timer);
       const b=this.current,c=b.entry.combat;
       if(this.side==='enemy'){
         this.round++;this.side='hero';const f=frameAt(b,this.round,'hero'),previous=frameAt(b,this.round-1,'enemy');
         this.bar('enemy',f.enemy,b.monster.hp);this.hit('hero',previous.enemy-f.enemy,f.enemy===0?'破敵':'');
+        if(c.plan){if(this.round===1&&c.firstDamage>c.damage)this.styleEffect('edge','劍意破勢');if(this.round===2&&c.secondBonus)this.styleEffect('guard','長春反震');if(c.rageStart&&this.round>=c.rageStart)this.styleEffect('blood','血刃迸發');}
         text(this.find('.battle-dialogue'),({sword:'修士踏步揮劍',dagger:'修士近身突刺',axe:'修士掄斧重劈',staff:'修士引杖運氣，靈光疾射',unarmed:'修士收腰出拳'}[this.heroMotion.weapon.family])+'，命中'+b.monster.name+'。');
         if(f.enemy===0&&c.counterattacks!==undefined){this.finish();return;}
       }else{
         this.side='enemy';const f=frameAt(b,this.round,'enemy'),previous=frameAt(b,this.round,'hero');
         this.bar('hero',f.hero,b.maxHp);this.hit('enemy',previous.hero-f.hero,c.evaded?'身法減傷':'');
+        if(c.plan){if(this.round===1&&c.guardSaved)this.styleEffect('guard','長春護體');if(c.wardAt===this.round)this.styleEffect('ward','回潮護身');}
         text(this.find('.battle-dialogue'),b.monster.name+'反擊'+(c.evaded?'，修士側身化去部分力道。':'，修士收劍守住身形。'));
         if(f.hero===0||this.round>=c.rounds){this.finish();return;}
       }
@@ -781,7 +1001,7 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
       this.heroMotion.settle(b.entry.hpRemaining?'victory':'defeated',skipped?0:360);
       if(b.entry.hpRemaining)this.monsterMotion.play('defeated');else this.monsterMotion.play('idle');
       this.bar('hero',b.entry.hpRemaining,b.maxHp);
-      const c=b.entry.combat,lastRound=b.entry.hpRemaining?c.rounds:Math.min(c.rounds,Math.ceil((c.evaded?2*b.before-1:b.before)/c.enemyDamage));
+      const c=b.entry.combat,lastRound=c.plan||b.entry.hpRemaining?c.rounds:Math.min(c.rounds,Math.ceil((c.evaded?2*b.before-1:b.before)/c.enemyDamage));
       this.bar('enemy',frameAt(b,lastRound,'enemy').enemy,b.monster.hp);
       text(this.find('.battle-phase'),b.entry.hpRemaining?'戰勝':'重傷');
       text(this.find('.battle-round'),skipped?'已跳過演出':b.entry.hpRemaining?(c.counterattacks===0?'一擊破敵 · 無傷':{sword:'劍光收斂',dagger:'收刃歸勢',axe:'斧勢收住',staff:'靈光散去',unarmed:'收拳立定'}[this.heroMotion.weapon.family]):'此行止步');
@@ -799,7 +1019,7 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
 </script>
 <script>(function(){
   'use strict';
-  const D=window.XIAN_DATA,Story=window.XIAN_STORY,Game=window.XianGame,KEY='xiantu-save-v1',BACKUP=KEY+'-backup';
+  const D=window.XIAN_DATA,Story=window.XIAN_STORY,P=window.XIAN_PHASE,R=window.XIAN_PHASE_TWO,Game=window.XianGame,KEY='xiantu-save-v1',BACKUP=KEY+'-backup';
   const $=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt=n=>Number(n).toLocaleString('zh-TW'),s=()=>game.state;
   const names={hero:'修士',quest:'遠征',sect:'宗門',craft:'丹器',bag:'百寶',book:'萬象圖錄',settings:'設定與存檔',journal:'問道紀事',item:'玄寶詳情',history:'遠征戰報',forge:'玄寶強化',regions:'選擇秘境',past:'前塵錄',report:'遠征手記'};
@@ -818,7 +1038,7 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
   function section(t){return `<h2 class="section-bar">${esc(t)}</h2>`;}
   function meter(label,value,max,type){return `<div class="meter-line"><span>${label}</span><span>${fmt(value)} / ${fmt(max)}</span></div><div class="meter ${type}"><i style="width:${Math.min(100,value/max*100)}%"></i></div>`;}
   function itemName(i){return i?D.ITEMS_DICT[i.id].name+(i.plus?' +'+i.plus:''):'未祭煉';}
-  function itemStats(i){const d=D.ITEMS_DICT[i.id];return ['weapon','armor'].includes(d.type)?(d.type==='weapon'?'攻擊 ':'防禦 ')+(d.base===null?'未知':d.base+i.plus)+' · 強化上限 '+(d.maxPlus===null?'未知':'+'+d.maxPlus):Object.entries(d.stats).filter(([,n])=>n).map(([k,v])=>({hp:'氣血',atk:'攻擊',def:'防禦',evd:'身法',luck:'福緣'}[k])+` +${v}`).join(' · ');}
+  function itemStats(i){const relic=R.RELICS.find(r=>r.id===i.id);if(relic)return relic.detail;const d=D.ITEMS_DICT[i.id];return ['weapon','armor'].includes(d.type)?(d.type==='weapon'?'攻擊 ':'防禦 ')+(d.base===null?'未知':d.base+i.plus)+' · 強化上限 '+(d.maxPlus===null?'未知':'+'+d.maxPlus):Object.entries(d.stats).filter(([,n])=>n).map(([k,v])=>({hp:'氣血',atk:'攻擊',def:'防禦',evd:'身法',luck:'福緣'}[k])+` +${v}`).join(' · ');}
   function details(entry){if(!entry?.combat)return '';const c=entry.combat;return `<div class="battle-math"><span>每擊 ${fmt(c.damage)}</span><span>${c.rounds} 回合</span><span>敵每擊 ${fmt(c.enemyDamage)}</span><span>${c.evaded?'身法減傷 50%':'未觸發閃避'}</span><span>承傷 ${fmt(c.taken)}</span><span>剩餘氣血 ${fmt(entry.hpRemaining)}</span></div>${entry.loot.length?`<div class="loot-strip">${entry.loot.map(l=>`<span>${sprite(l.id)}<span>${esc(D.ITEMS_DICT[l.id].name)}${l.plus?' +'+l.plus:''}<small> ×${l.count}</small></span></span>`).join('')}</div>`:''}`;}
   function entryView(entry){return `<article class="story-entry ${esc(entry.kind)}"><div class="story-caption"><span>第 ${entry.floor} 層</span><span>${entry.kind==='quiet'?'平安通過':entry.hpRemaining?'戰勝':'重傷'}</span></div><h3>${esc(entry.title)}</h3><p>${esc(entry.text)}</p>${entry.combat?`<div class="story-outcome"><span>氣血 −${fmt(entry.hpLost)}</span>${entry.gold?`<span>靈石 +${fmt(entry.gold)}</span>`:''}<span>${entry.loot.length?'拾獲 '+entry.loot.length+' 份':'未獲戰利品'}</span></div><details class="combat-detail" data-detail-key="${entry.at}-${entry.floor}"><summary>戰鬥與拾獲詳情</summary>${details(entry)}</details>`:''}</article>`;}
   function journal(limit=6){const rows=[];for(const l of s().logs.slice(0,limit)){if(l.type==='quiet'&&rows.at(-1)?.type==='quiet'){rows.at(-1).count=(rows.at(-1).count||1)+1;continue;}rows.push({...l});}return `<div class="journal">${rows.map(l=>l.detail?.combat?entryView(l.detail):`<div class="journal-line ${esc(l.type)}"><time>${l.detail?.floor?'第 '+l.detail.floor+' 層':l.age+'歲'}</time><span>${esc(l.text)}${l.count?`<small> · ${l.count} 層安然走過</small>`:''}</span></div>`).join('')||'<div class="empty">山中無甲子，道途始於足下。</div>'}</div>`;}
@@ -826,17 +1046,32 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
   function hero(){const st=s(),r=D.REALMS[st.realm],v=game.stats();if(st.dead)return death();return `<div class="hero-sheet"><div class="hero-heading"><div><h2>${r.name}</h2><p>${st.sect?D.SECTS.find(x=>x.id===st.sect).name+' · '+D.RANKS[st.rank]:'無門無派 · 一介散修'}</p></div><span class="realm-seal">問<br>道</span></div>${meter('氣血',st.hp,v.hp,'hp')}${meter(st.realm===15?'道行圓滿':'修為',st.exp,r.maxExp,'exp')}<div class="attributes">${[['atk','攻擊'],['def','防禦'],['evd','身法'],['luck','福緣']].map(([k,l])=>`<div><b>${fmt(v[k])}</b><span>${l}</span></div>`).join('')}</div></div><div class="padded">${button(st.realm===15?'元嬰大能 · 道行已成':st.realm===4?'引劫破境 · 築基丹 ×1':'引劫破境 · '+D.REALMS[st.realm+1].name,'breakthrough','',st.realm===15||st.exp<r.maxExp||!!st.expedition||st.realm===4&&!game.quantity('foundation'))}</div>${section('玄寶祭壇')}${['weapon','armor','accessory'].map(slot=>{const i=game.item(st.equipment[slot]);return cell(labels[slot],{icon:i?.id||slot,value:itemName(i),sub:i?itemStats(i):'空置',action:i?'unequip':'go-bag',id:i?i.uid:slot,cls:'equipment-row'});}).join('')}${cell('萬象圖錄',{icon:'records',sub:'此世所見，來世之基',value:st.book.monsters.length+st.book.items.length+' 已點亮',action:'book'})}${cell('前塵錄',{icon:'records',value:st.lives.length+' 世',action:'past'})}<div class="section-head"><h2>問道紀事</h2><button ${attr('journal')}>全部紀事</button></div>${journal(5)}`;}
   function death(){const retained=Math.floor(s().gold*.5),b=game.bookBonus();return `<div class="death-sheet"><span class="realm-seal" style="margin:auto">輪<br>迴</span><h2>此世緣盡，來世再行</h2><p>${esc(s().deathReason)}<br>第 ${s().incarnation} 世 · ${D.REALMS[s().realm].name} · ${s().age} 歲</p>${cell('承繼靈石',{value:fmt(retained)})}${cell('萬象圖錄',{value:'全數保留'})}${cell('永久根骨',{value:`氣血 +${b.hp}　攻 +${b.atk}　防 +${b.def}`})}${button('踏入輪迴','rebirth')}</div>${journal(8)}`;}
   function repeatSwitch(){return `<label class="cell compact-control"><span class="cell-main"><span class="cell-label">休養滿血後自動往返</span><span class="cell-sub">昏厥或撤退即停止</span></span><input class="switch" type="checkbox" data-repeat aria-label="休養滿血後自動往返" ${s().route.repeat?'checked':''}></label>`;}
-  function receipt(){const h=s().history[0];if(!h)return '';return `<div class="return-receipt"><div><strong>${h.result==='生還'?'已平安歸來':h.result==='撤退'?'已撤回洞府':'此行止步'}</strong><span>${D.DUNGEONS[h.dungeon].name} · ${h.floor} 層</span></div><b>${h.result==='生還'?'靈石 +'+fmt(h.gold):h.result}</b><div class="actions">${button('查看手記','report','0',false,'secondary')}${button('再次探索','again','',s().hp<game.stats().hp*.25||s().repeatPending,'secondary')}</div></div>`;}
-  function quest(){
+  function receipt(){const h=s().history[0];if(!h)return '';const x=h.phaseTwo;return `<div class="return-receipt"><div><strong>${h.result==='生還'?'已平安歸來':h.result==='撤退'?'已撤回洞府':'此行止步'}</strong><span>${D.DUNGEONS[h.dungeon].name} · ${h.floor} 層</span></div><b>${h.result==='生還'?'靈石 +'+fmt(h.gold):h.result}</b>${x?`<div class="return-progress">${R.RELICS.filter(r=>x.shards[r.id]).map(r=>`<span>${r.name}碎片 +${x.shards[r.id]}</span>`).join('')}${x.found.map(id=>`<span>拾獲《${D.ITEMS_DICT[id].name}》</span>`).join('')}${x.clues?`<span>秘境線索 +${x.clues}</span>`:''}${x.commissions.length?`<span>宗門委託可領取：${x.commissions.map(esc).join('、')}</span>`:''}</div>`:''}<div class="actions">${button('查看手記','report','0',false,'secondary')}${button('再次探索','again','',s().hp<game.stats().hp*.25||s().repeatPending,'secondary')}</div></div>`;}
+  function relicGoal(){const r=R.RELICS.find(r=>r.id===s().phaseTwo.target);return r?cell('追尋 · '+r.name,{icon:r.id,value:game.hasRelic(r.id)?'已獲得':s().phaseTwo.shards[r.id]+' / '+r.need,sub:r.detail,action:'relics'}):cell('法寶尋蹤',{icon:'talisman',sub:'選定一件法寶作為此世目標',action:'relics'});}
+  function anomalyPanel(){const q=s().expedition,a=q?R.ANOMALIES.find(a=>a.id===q.phaseTwo.anomaly):game.nextAnomaly(s().route.dungeon);return a?cell('秘境異象 · '+a.name,{sub:a.detail,value:q?'此行':'下趟'}):'';}
+  function relics(){names.relics='法寶尋蹤';return section('命名法寶')+R.RELICS.map(r=>{const i=s().inventory.find(i=>i.id===r.id),busy=!!s().expedition||s().repeatPending;return `<article class="phase-row"><div class="phase-meta">${sprite(r.id)}<h3>${r.name}</h3><span>${s().phaseTwo.target===r.id?'追尋中':i?'已獲得':''}</span></div><p>${r.detail}</p><p>碎片 ${s().phaseTwo.shards[r.id]} / ${r.need} · 打造 ${r.cost} 靈石</p><p class="subtle">${D.DUNGEONS.filter((d,n)=>n%3===r.region).map(d=>d.name).join('、')}：首領必掉碎片，10% 掉落成品；生還入庫。</p><div class="actions">${button(i?'查看法寶':'打造法寶',i?'item':'craft-relic',i?i.uid:r.id,!i&&(busy||s().phaseTwo.shards[r.id]<r.need||s().gold<r.cost))}${button(s().phaseTwo.target===r.id?'取消追尋':'追尋','track-relic',s().phaseTwo.target===r.id?'':r.id,false,'secondary')}${button('前往討伐','pursue-relic',r.id,busy,'secondary')}</div></article>`;}).join('')+cell('輪迴承繼',{sub:'碎片與追尋目標跨世保留；成品沿用裝備重置規則。法寶共用原有靈寶欄。'});}
+  function purposePicker(){const r=s().route;return `<section class="purpose-picker"><fieldset><legend>此行所求</legend><div class="purpose-options" role="group" aria-label="遠征目的">${Object.entries(P.PURPOSES).map(([id,x])=>`<button type="button" ${attr('purpose',id)} aria-pressed="${r.purpose===id}" class="${r.purpose===id?'active':''}">${x.name}</button>`).join('')}</div></fieldset><p>${P.PURPOSES[r.purpose].detail}</p><div class="policy-row"><span>奇遇行事偏好</span><div class="policy-options" role="group" aria-label="行事偏好">${[['safe','穩健'],['risk','冒險']].map(([id,label])=>`<button type="button" ${attr('policy',id)} class="${r.policy===id?'active':''}" aria-pressed="${r.policy===id}">${label}</button>`).join('')}</div></div></section>`;}
+  function encounterPanel(){const e=game.encounter();if(!e)return '';const affinity=s().sect===e.affinity;return `<section class="encounter-panel"><span class="encounter-caption">${e.chain} · 第 ${e.chapter+1} 章</span><h2>${esc(e.title)}</h2><p>${esc(e.text)}</p><div class="actions">${button(e.safe,'encounter','safe',false,'secondary')}${button(e.risk,'encounter','risk')}</div><p class="risk-note">${affinity?'本宗所學可化解此處風險，並多得一份素材。':'穩健：素材 ×2；冒險：成功 ×4，失利損失最多 15% 氣血，不致命。'}</p><span class="encounter-caption">${Math.max(0,e.due-s().tick)} 息後或歸程時依「${e.policy==='safe'?'穩健':'冒險'}」處理 · 收穫生還入庫</span></section>`;}
+  function quest(){if(s().dead)return death();const busy=s().expedition||s().repeatPending;return `${encounterPanel()}${anomalyPanel()}${!busy?purposePicker():cell('此行所求',{value:P.PURPOSES[s().expedition?.purpose||s().route.purpose].name,sub:s().route.policy==='safe'?'行事穩健':'行事冒險'})}<div class="phase-route ${view.advanced?'show-depth':''}">${questBase()}</div>${relicGoal()}${cell('秘境線索',{icon:'records',value:s().phaseOne.lore.reduce((n,x)=>n+x,0)+' / 9',action:'lore'})}`;}
+  function sect(){
+    if(!s().sect||s().dead)return sectBase();const p=s().phaseOne,selected=view.sectPanel||'tasks',active=game.activeManual();
+    const heading=`<div class="phase-heading"><div><h2>${D.SECTS.find(x=>x.id===s().sect).name}</h2><p>${D.RANKS[s().rank]} · ${active?'修習《'+active.name+'》':'尚未修習功法'}</p></div><strong class="contribution">${fmt(p.contribution)}<small>宗門貢獻</small></strong></div><div class="phase-tabs" role="group" aria-label="宗門事務">${[['tasks','委託'],['manuals','藏經閣'],['overview','職位與洞府']].map(([id,label])=>`<button ${attr('sect-panel',id)} aria-pressed="${selected===id}" class="${selected===id?'active':''}">${label}</button>`).join('')}</div>`;
+    if(selected==='overview')return heading+sectBase();
+    if(selected==='tasks')return heading+game.commissions().map(q=>`<article class="phase-row"><div class="phase-meta"><h3>${q.name}</h3><span>第 ${q.cycle} 輪</span></div><div class="phase-meta"><span>${{floors:'抵達樓層',kills:'擊敗異獸',bosses:'擊敗霸主或聖獸',materials:'生還帶回素材',returns:'平安歸來'}[q.key]} ${q.current} / ${q.goal}</span><strong>貢獻 +${q.reward}</strong></div><div class="phase-meter" role="progressbar" aria-label="${q.name}" aria-valuemin="0" aria-valuemax="${q.goal}" aria-valuenow="${q.current}" style="--progress:${q.current/q.goal*100}%"><i></i></div>${button(q.ready?'領取貢獻':'進行中','commission',q.id,!q.ready,q.ready?'':'secondary')}</article>`).join('')+'<div class="phase-footnote">入宗後累計 · 領取後續接下一輪 · 輪迴時重置當世貢獻與委託</div>';
+    return heading+P.MANUALS.filter(m=>m.sect===s().sect).map(m=>{const learned=p.learned.includes(m.id),equipped=p.equipped===m.id,busy=!!s().expedition||s().repeatPending;return `<article class="phase-row"><div class="phase-meta"><h3>${m.name}</h3><span>${equipped?'修習中':learned?'已領悟':m.cost+' 貢獻'}</span></div><p>${m.detail}</p><div class="actions">${learned?button(equipped?'停止修習':'修習此法','equip-manual',equipped?'':m.id,busy,equipped?'secondary':''):button('領悟 · '+m.cost+' 貢獻','learn-manual',m.id,busy||p.contribution<m.cost)}</div></article>`;}).join('')+'<div class="phase-footnote">同時修習一本 · 遠征時不可更換 · 領悟跨世保留，修習須拜入對應宗門</div>';
+  }
+  function lore(){const p=s().phaseOne;return `<div class="phase-footnote">線索跨世保留 · 每次遠征推進一章 · 物資須平安歸來才入庫</div>${P.CHAINS.map((chain,dungeon)=>`<section><div class="phase-heading"><div><h2>${chain.name}</h2><p>${D.DUNGEONS[dungeon].name}</p></div><strong>${p.lore[dungeon]} / 3</strong></div>${chain.chapters.map((chapter,i)=>{const record=p.chronicle.find(e=>e.dungeon===dungeon&&e.chapter===i),known=i<p.lore[dungeon];return `<article class="lore-entry"><small>第 ${i+1} 章 · ${known?'已記下':i===p.lore[dungeon]?'待探尋':'線索未明'}</small><h3>${known||i===p.lore[dungeon]?chapter.title:'未知篇章'}</h3>${record?`<p>${esc(record.text)}</p><small>第 ${record.life} 世 · ${record.choice==='safe'?'穩健':'冒險'} · ${record.automatic?'自行應對':'親自抉擇'}</small>`:known?`<p>${chapter.ending}</p>`:''}</article>`;}).join('')}</section>`).join('')}`;}
+  names.lore='秘境線索';
+  function questBase(){
     if(s().dead)return death();const q=s().expedition,route=s().route,v=game.stats();
     if(q){const d=D.DUNGEONS[q.dungeon];return `<div class="expedition-sheet"><div class="subtle">${Story.profiles[q.dungeon].chapter}</div><h2>${d.name}</h2><div class="journey-progress"><strong>${q.floor}<small> / ${q.target} 層</small></strong><span>歸程約 ${Math.ceil((q.target-q.floor)*2*(s().settings.fast?.06:1.2))} 秒</span></div>${meter('氣血',s().hp,v.hp,'hp')}<div class="pending-loot"><span>暫存收穫</span><strong>${fmt(q.gold)} 靈石 · ${q.loot.length} 份</strong></div></div>${repeatSwitch()}<div class="journey-actions"><button ${attr('use','heal')} ${!game.quantity('heal')||s().hp>=v.hp?'disabled':''}>${sprite('heal')}<span>服丹 <small>×${game.quantity('heal')}</small></span></button><button ${attr('retreat')} class="retreat-link">撤退</button></div><div class="section-head"><h2>行途手記</h2><button ${attr('journal')}>全部紀事</button></div>${journal(12)}`;}
     if(s().repeatPending)return `<div class="expedition-sheet"><div class="subtle">${D.DUNGEONS[route.dungeon].name} · ${route.target} 層</div><h2>歸來歇息，待血滿再行</h2>${meter('氣血',s().hp,v.hp,'hp')}</div><div class="padded">${button('停止自動往返','stop-repeat','',false,'secondary')}</div>${receipt()}${journal(5)}`;
-    const d=D.DUNGEONS[route.dungeon],risk=game.forecast(d.id,route.target);return `<div class="section-head"><h2>選定行程</h2><button ${attr('history')}>往日戰報</button></div>${cell(d.name,{icon:'floor',sub:D.REALMS[d.recommended].name+' · 已抵達 '+(s().best[d.id]||0)+' 層',value:'更換秘境',action:'regions'})}<div class="region-intro"><span>${Story.profiles[d.id].chapter}</span><p>${Story.profiles[d.id].arrival}</p><div class="drop-preview">${['herb','iron','hide',...d.dropPool.slice(0,3)].map(id=>sprite(id)).join('')}<span>主要掉落</span></div></div><div class="route-modes" role="group" aria-label="探索方式">${[['shallow','淺探'],['deep','深入'],['boss','挑戰霸主']].map(([mode,label])=>`<button type="button" ${attr('route-mode',mode)} class="${route.mode===mode?'active':''}" aria-pressed="${route.mode===mode}"><b>${label}</b><span>${game.routeTarget(d.id,mode)} 層</span></button>`).join('')}</div><div class="route-review"><span>本次 ${route.target} 層 · 約 ${Math.ceil(route.target*2*(s().settings.fast?.06:1.2))} 秒</span><strong class="${risk.danger?'danger':''}">${risk.danger?'此行凶險':'準備就緒'}</strong></div><div class="route-risk">預估耗血 ${fmt(risk.expected)} / 現有 ${fmt(s().hp)}<span>實際依途中遭遇，未計服丹</span></div><div class="padded departure">${button('啟程','depart','',s().hp<v.hp*.25)}</div>${repeatSwitch()}<div class="advanced-heading"><button type="button" ${attr('advanced')} aria-expanded="${view.advanced}">${view.advanced?'收起':'進階設定'}${route.mode==='custom'?' · 自訂 '+route.target+' 層':''}</button></div>${view.advanced?`<div class="advanced-options"><label class="cell"><span class="cell-main">自由層數</span><input id="target" class="number-input" type="number" min="1" max="100" value="${route.target}" aria-label="目標層數"></label><label class="cell"><span class="cell-main">自動服用聚元丹</span><input class="switch" type="checkbox" data-setting="autoHeal" aria-label="自動服用聚元丹" ${s().settings.autoHeal?'checked':''}></label></div>`:''}${receipt()}`;
+    const d=D.DUNGEONS[route.dungeon],risk=game.forecast(d.id,100);return `<div class="section-head"><h2>選定秘境</h2><button ${attr('history')}>往日戰報</button></div>${cell(d.name,{icon:'floor',sub:D.REALMS[d.recommended].name+' · 已抵達 '+(s().best[d.id]||0)+' 層',value:'更換秘境',action:'regions'})}<div class="region-intro"><span>${Story.profiles[d.id].chapter}</span><p>${Story.profiles[d.id].arrival}</p><div class="drop-preview">${['herb','iron','hide',...d.dropPool.slice(0,3)].map(id=>sprite(id)).join('')}<span>主要掉落</span></div></div><div class="route-review"><span>直闖 100 層 · 約 ${Math.ceil(200*(s().settings.fast?.06:1.2))} 秒</span><strong class="${risk.danger?'danger':''}">${risk.danger?'此行凶險':'準備就緒'}</strong></div><div class="route-risk">預估耗血 ${fmt(risk.expected)} / 現有 ${fmt(s().hp)}<span>百層聖獸鎮守 · 重傷中止 · 未計服丹</span></div><label class="cell"><span class="cell-main">自動服用聚元丹</span><input class="switch" type="checkbox" data-setting="autoHeal" aria-label="自動服用聚元丹" ${s().settings.autoHeal?'checked':''}></label><div class="padded departure">${button('挑戰到底','depart','',s().hp<v.hp*.25)}</div>${repeatSwitch()}${receipt()}`;
   }
   function regions(){return D.DUNGEONS.map(d=>cell(d.name,{icon:'floor',sub:D.REALMS[d.recommended].name+' · '+Story.profiles[d.id].chapter,value:s().realm<d.recommended?'尚未開放':s().route.dungeon===d.id?'已選定':s().best[d.id]?'最深 '+s().best[d.id]+' 層':'未涉足',action:'choose-region',id:d.id,disabled:s().realm<d.recommended})).join('');}
   function report(){const h=view.reportData||s().history[view.report];if(!h)return '<div class="empty">沒有這段遠征手記。</div>';return `<div class="report-heading"><span>${h.result} · 第 ${h.floor} 層</span><h2>${D.DUNGEONS[h.dungeon].name}</h2><p>${Story.profiles[h.dungeon].arrival}</p></div>${h.result==='生還'?cell('已入庫',{value:fmt(h.gold)+' 靈石 · '+h.loot.length+' 份戰利品'}):''}${(h.entries||[]).map(entryView).join('')||'<div class="empty">這是舊版戰報，僅留有收穫紀錄。</div>'}${h.loot.map(l=>cell(D.ITEMS_DICT[l.id].name+(l.plus?' +'+l.plus:''),{icon:l.id,value:'×'+l.count})).join('')}`;}
   function past(){return `<div class="relic-summary">前塵如墨，今生續筆。<br>此刻正在經歷第 ${s().incarnation} 世。</div>${s().lives.map(l=>`<article class="past-life"><div class="past-age">第 ${l.incarnation} 世 · ${l.age} 歲</div><h2>${D.REALMS[l.realm].name}</h2><p>${l.sect?D.SECTS.find(x=>x.id===l.sect).name+' · '+D.RANKS[l.rank]:'無門無派，一生散修'}</p><p>${l.dungeon===null?'此世未曾遠行':D.DUNGEONS[l.dungeon].name+' · 最深 '+l.floor+' 層'}</p>${l.keepsake?`<div class="keepsake">${sprite(l.keepsake)}<span>曾珍藏 ${D.ITEMS_DICT[l.keepsake].name}</span></div>`:''}<blockquote>${esc(l.reason)}</blockquote></article>`).join('')||'<div class="empty">這一世的故事，才剛剛開始。</div>'}`;}
-  function sect(){if(s().dead)return death();if(!s().sect)return `${cell('宗門名帖',{icon:'records',value:s().realm>=5?'可拜入':'築基初期開放'})}${D.SECTS.map(x=>`<section class="sect-banner ${x.id}"><h2>${x.name}</h2><p>${x.motto}</p><div class="subtle">${x.atk?'攻擊 +'+Math.round(x.atk*100)+'%　':''}${x.def?'防禦 +'+Math.round(x.def*100)+'%　':''}${x.hp?'氣血 '+(x.hp>0?'+':'')+Math.round(x.hp*100)+'%':''} / 每階職位</div><div class="padded">${button('拜入'+x.name,'join',x.id,s().realm<5||!!s().expedition)}</div></section>`).join('')}`;
+  function sectBase(){if(s().dead)return death();if(!s().sect)return `${cell('宗門名帖',{icon:'records',value:s().realm>=5?'可拜入':'築基初期開放'})}${D.SECTS.map(x=>`<section class="sect-banner ${x.id}"><h2>${x.name}</h2><p>${x.motto}</p><div class="subtle">${x.atk?'攻擊 +'+Math.round(x.atk*100)+'%　':''}${x.def?'防禦 +'+Math.round(x.def*100)+'%　':''}${x.hp?'氣血 '+(x.hp>0?'+':'')+Math.round(x.hp*100)+'%':''} / 每階職位</div><div class="padded">${button('拜入'+x.name,'join',x.id,s().realm<5||!!s().expedition)}</div></section>`).join('')}`;
     const sect=D.SECTS.find(x=>x.id===s().sect),boss=D.SECT_BOSS[s().rank+1],c=boss?Game.combat(game.stats(),boss):null;return `<section class="sect-banner ${sect.id}"><h2>${sect.name}</h2><p>${sect.motto}</p><strong>${D.RANKS[s().rank]}</strong></section><div class="rank-path">${D.RANKS.slice(1).map((r,i)=>`<span class="${i<s().rank?'done':''}">${r}</span>`).join('')}</div>${section('同門生死鬥')}${boss?cell(boss.name,{icon:'battle',value:'預估承傷 '+fmt(c.taken),sub:`氣血 ${boss.hp} · 攻 ${boss.atk} · 防 ${boss.def}`}):cell('一宗之主',{icon:'success',sub:'此宗已無人在你之上。'})}<div class="padded">${button(boss?'挑戰並晉升'+D.RANKS[s().rank+1]:'已登宗主之位','duel','',!boss||!!s().expedition)}</div>${section('宗門洞府')}<label class="cell"><span class="cell-main"><span class="cell-label">${s().rank<4?'長老之位開放':'洞府聚靈陣'}</span><span class="cell-sub">${s().rank>=4?`每 60 息：${s().rank*150} 靈石 · ${(s().realm+1)*80} 修為`:'尚未取得洞府令'}</span></span><input class="switch" type="checkbox" aria-label="洞府聚靈陣" data-action="abode" ${s().abode?'checked':''} ${s().rank<4?'disabled':''}></label>${journal(5)}`;
   }
   function craft(){if(s().dead)return death();return `<div class="segment">${[['pill','煉丹'],['gear','鑄器']].map(([k,l])=>`<button class="${view.craft===k?'active':''}" ${attr('craft-filter',k)}>${l}</button>`).join('')}</div>${view.craft==='gear'?cell('玄寶強化',{icon:'forge',sub:'同名武具 · 強化靈礦',action:'forge'}):''}${D.RECIPES.filter(r=>view.craft==='pill'?D.ITEMS_DICT[r.target].type==='pill':gearType(r.target)).map(r=>{const can=Object.entries(r.req).every(([i,n])=>game.quantity(i)>=n)&&s().gold>=r.gold;return `<section class="recipe"><div class="recipe-head">${sprite(r.target)}<div><h3>${D.ITEMS_DICT[r.target].name}</h3><span class="subtle">${fmt(r.gold)} 靈石</span></div></div><div class="ingredients">${Object.entries(r.req).map(([id,n])=>`<span class="${game.quantity(id)<n?'missing':''}">${sprite(id)}${D.ITEMS_DICT[id].name} ${game.quantity(id)}/${n}</span>`).join('')}</div><div class="actions">${button('煉製 ×1','craft',r.id,!can)}${button('×5','craft-five',r.id,!Object.entries(r.req).every(([id,n])=>game.quantity(id)>=n*5)||s().gold<r.gold*5,'secondary')}</div></section>`;}).join('')}`;}
@@ -857,7 +1092,7 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
     if(battle.game!==game)battle.bind(game);
     if(battle.incarnation!==s().incarnation){battle.clear();battle.incarnation=s().incarnation;}
     titlebar();
-    const pages={hero,quest,sect,craft,bag,book,settings,journal:()=>journal(80),item:itemDetail,history,forge,regions,past,report};
+    const pages={hero,quest,sect,craft:()=>relicGoal()+craft(),bag,book,settings,journal:()=>journal(80),item:itemDetail,history,forge,regions,past,report,lore,relics};
     const showBattle=view.page==='quest'&&!s().dead,content=(pages[view.page]||hero)();
     // Keep the stage mounted so periodic UI refreshes cannot restart an attack.
     if(showBattle){
@@ -875,21 +1110,31 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
   function confirm(title,text,fn){$('dialog-title').textContent=title;$('dialog-content').innerHTML=`<p>${esc(text)}</p>`;$('dialog-actions').innerHTML='<button type="button" data-modal="cancel">取消</button><button type="button" class="confirm" data-modal="confirm">確定</button>';modalCallback=fn;$('dialog').showModal();}
   function download(raw,name){const url=URL.createObjectURL(new Blob([raw],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
   function doImport(raw){let incoming;try{incoming=Game.import(raw);}catch(e){toast(e.message);return;}confirm('匯入修行存檔','將以匯入資料取代此瀏覽器目前的進度。',()=>{checkpoint();game=incoming;saveFailed=false;game.advance();persist();tab('hero');toast('修行存檔已匯入。');});}
-  function depart(dungeon,target){const risk=game.forecast(dungeon,target),run=()=>mutate(()=>game.start(dungeon,target));if(risk.danger||target===100)confirm('挑戰'+D.DUNGEONS[dungeon].name,`目標 ${target} 層，預估耗血 ${risk.expected}，目前氣血 ${s().hp}。昏厥會折壽兩年、損失兩成靈石及暫存戰利品。`,run);else run();}
+  function depart(dungeon){const target=100,risk=game.forecast(dungeon,target);confirm('挑戰'+D.DUNGEONS[dungeon].name,`一路挑戰至第 100 層的太古守護聖獸，或重傷中止。預估耗血 ${risk.expected}，目前氣血 ${s().hp}。昏厥會折壽兩年、損失兩成靈石及暫存戰利品。`,()=>mutate(()=>game.start(dungeon,target)));}
   document.addEventListener('click',e=>{
     const modal=e.target.closest('[data-modal]');if(modal){$('dialog').close();if(modal.dataset.modal==='confirm'&&modalCallback){const cb=modalCallback;modalCallback=null;cb();}return;}
     const tb=e.target.closest('[data-tab]');if(tb){tab(tb.dataset.tab);return;}
     const el=e.target.closest('[data-action]');if(!el||el.disabled)return;const a=el.dataset.action,id=el.dataset.id;
+    if(a==='relics'){names.relics='法寶尋蹤';go('relics');return;}
+    if(a==='track-relic'){mutate(()=>game.trackRelic(id||null));return;}
+    if(a==='craft-relic'){mutate(()=>game.craftRelic(id));return;}
+    if(a==='pursue-relic'){mutate(()=>{const r=R.RELICS.find(r=>r.id===id);game.setRoute(r.region,'custom',100);game.setPurpose('hunt');game.trackRelic(id);tab('quest');});return;}
+    if(a==='lore'){go('lore');return;}
+    if(a==='sect-panel'){view.sectPanel=id;render();return;}
+    if(a==='purpose'){mutate(()=>game.setPurpose(id));return;}
+    if(a==='policy'){mutate(()=>game.setPolicy(id));return;}
+    if(a==='commission'){mutate(()=>game.claimCommission(id));return;}
+    if(a==='learn-manual'){mutate(()=>game.learnManual(id));return;}
+    if(a==='equip-manual'){mutate(()=>game.equipManual(id||null));return;}
+    if(a==='encounter'){mutate(()=>game.resolveEncounter(id));return;}
     if(['book','journal','history','forge','regions','past'].includes(a)){go(a);return;}
     if(a==='go-bag'){view.filter=id;tab('bag');return;}
     if(a==='bag-filter'){view.filter=id;render();return;}if(a==='craft-filter'){view.craft=id;render();return;}if(a==='book-filter'){view.book=id;render();return;}
     if(a==='item'){view.id=id;go('item');return;}
     if(a==='breakthrough'){mutate(()=>game.breakthrough());return;}
-    if(a==='depart'){depart(s().route.dungeon,s().route.target);return;}
-    if(a==='again'){const h=s().history[0];if(h)depart(h.dungeon,h.target);return;}
-    if(a==='advanced'){view.advanced=!view.advanced;render();return;}
-    if(a==='route-mode'){mutate(()=>game.setRoute(s().route.dungeon,id));return;}
-    if(a==='choose-region'){mutate(()=>{game.setRoute(Number(id),s().route.mode==='custom'?'shallow':s().route.mode);back();});return;}
+    if(a==='depart'){depart(s().route.dungeon);return;}
+    if(a==='again'){const h=s().history[0];if(h)depart(h.dungeon);return;}
+    if(a==='choose-region'){mutate(()=>{game.setRoute(Number(id),'custom',100);back();});return;}
     if(a==='report'){view.report=Number(id);view.reportData=s().history[view.report];go('report');return;}
     if(a==='stop-repeat'){mutate(()=>game.toggleRepeat(false));return;}
     if(a==='retreat'){confirm('撤離秘境','將捨棄本次尚未入庫的全部戰利品。',()=>mutate(()=>game.retreat()));return;}
@@ -909,7 +1154,6 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
   });
   document.addEventListener('change',async e=>{const el=e.target;if(el.dataset.setting){game.advance();s().settings[el.dataset.setting]=el.checked;s().lastTime=Date.now();persist();render();return;}
     if(el.hasAttribute('data-repeat')){mutate(()=>game.toggleRepeat(el.checked));return;}
-    if(el.id==='target'){mutate(()=>game.setRoute(s().route.dungeon,'custom',Math.max(1,Math.min(100,Math.round(Number(el.value)||1)))));}
     if(el.id==='forge-first'){view.first=el.value;view.second='';render();}if(el.id==='forge-second'){view.second=el.value;render();}
     if(el.id==='import-file'&&el.files[0]){if(el.files[0].size>8000000){toast('存檔檔案過大。');return;}doImport(await el.files[0].text());}
   });
