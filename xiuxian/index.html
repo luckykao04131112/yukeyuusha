@@ -415,10 +415,12 @@ dialog{background:linear-gradient(#637f72f5,#30483efc);border-color:#97aca0;bord
   
   
   
+  
   <style>.world-region-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid #7c9691}
 .next-goal{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:16px;background:#eef5ef;border-bottom:2px solid #8aa99b}
 .next-goal>div{flex:1;min-width:0}.next-goal h2{font-size:18px;margin:5px 0}.next-goal p{font-size:13px;line-height:1.6;margin:5px 0;overflow-wrap:anywhere}.next-goal small{color:#4b6c5a}
 .next-goal button{min-height:44px;width:auto;min-width:64px;padding:10px 14px}
+.apprentice-row{padding:16px;border-bottom:1px solid #bfcec5;background:#f8fbf9}.apprentice-row.current{border-left:4px solid #648f78;background:#edf5ef}.apprentice-row h3{font-size:17px;margin:8px 0}.apprentice-row p{font-size:13px;line-height:1.7;overflow-wrap:anywhere}.apprentice-row small{color:#5d776a}
 @media(max-width:500px){.action-button{min-height:44px}.actions{flex-wrap:wrap}.setting-select{max-width:100%}}
 .world-region-tabs button{padding:10px 4px;min-height:62px;border:0;border-bottom:3px solid transparent;background:#e9efed;color:#34544f;font:inherit}
 .world-region-tabs button[aria-selected=true]{border-color:#386b5b;background:#dceae2;color:#164734}
@@ -670,6 +672,34 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
   Game.prototype.validatePhase=function(){validate.call(this);const p=this.state.foundation,r=p?.lastRest,n=v=>Number.isSafeInteger(v)&&v>=0,fail=()=>{throw Error('手機修行設定不正確。');};if(!p||p.version!==1||typeof p.safeOffline!=='boolean'||r!==null&&(!r||!['at','ticks','exp','hp','years'].every(k=>n(r[k]))||r.ticks>24000||typeof r.reason!=='string'||r.reason.length>80))fail();};
  }
  const api={install};root.XIAN_FOUNDATION=api;if(typeof module!=='undefined')module.exports=api;
+})(typeof window!=='undefined'?window:globalThis);
+</script>
+<script>(function(root){
+ 'use strict';
+ const STEPS=[
+  {name:'初引天雷',text:'突破至煉氣初期。',page:'hero',reward:'青鋒劍 +3、行者衣 +3、100 靈石',items:[['w1',1,3],['a1',1,3]],gold:100},
+  {name:'整裝問道',text:'換下初始桃木劍與布衣，裝備新的法兵和仙衣。',page:'bag',reward:'聚元丹 ×8',items:[['heal',8,0]],gold:0},
+  {name:'雷意入門',text:'在戰技與試煉選擇一門戰技。',page:'combatHall',reward:'靈草 ×15、妖丹 ×2、300 靈石',items:[['herb',15,0],['essence',2,0]],gold:300},
+  {name:'親煉道基',text:'在丹器煉製築基丹；已築基者亦可完成。',page:'craft',reward:'聚元丹 ×6',items:[['heal',6,0]],gold:0},
+  {name:'築基整備',text:'達到築基初期，領取百層挑戰裝備並自行祭煉。',page:'hero',reward:'青銅劍 +5、青銅甲 +5、聚元丹 ×6',items:[['w2',1,5],['a2',1,5],['heal',6,0]],gold:0},
+  {name:'初曦歸來',text:'在初曦洞窟完成百層挑戰並生還。',page:'quest',reward:'九霄雷獄劍碎片 ×3、強化靈礦 ×3、500 靈石',items:[['shard-thunder',3,0],['ore',3,0]],gold:500}
+ ];
+ function install(Game){
+  const init=Game.prototype.initPhase,validate=Game.prototype.validatePhase,rebirth=Game.prototype.reincarnate,nextGoal=Game.prototype.nextGoal;
+  Game.prototype.initPhase=function(){init.call(this);this.state.apprenticeship??={version:1,claimed:0};};
+  Game.prototype.apprenticeStep=function(){const s=this.state,n=s.apprenticeship.claimed,def=STEPS[n];if(!def)return null;const weapon=this.item(s.equipment.weapon),armor=this.item(s.equipment.armor);const tests=[s.realm>=1,!!weapon&&weapon.id!=='w0'&&!!armor&&armor.id!=='a0',!!s.phaseFour.skill,this.quantity('foundation')>0||s.realm>=5,s.realm>=5,!!s.cleared[0]&&s.phaseThree.reached[0]>=100];return {...def,index:n,ready:tests[n]};};
+  Game.prototype.claimApprentice=function(index){this.combatReady();const step=this.apprenticeStep();if(!step||index!==step.index||!step.ready)throw Error('入門目標尚未完成或補給已領取。');this.state.apprenticeship.claimed++;this.state.gold+=step.gold;for(const [id,n,plus] of step.items)this.add(id,n,plus);this.log('入門行記「'+step.name+'」完成，'+step.reward+'已入庫。','reward');};
+  Game.prototype.nextGoal=function(){const base=nextGoal.call(this),step=this.apprenticeStep(),s=this.state;if(!step||s.dead||s.settings.paused||s.expedition||s.repeatPending||this.canBreakthrough())return base;if(step.ready)return {title:'領取'+step.name+'補給',detail:step.reward,action:'apprentice-claim'};if(step.index===0)return base;return {title:step.name,detail:step.text,page:step.index===5?'apprentice':step.page};};
+  Game.prototype.departureChecks=function(){const s=this.state,v=this.stats();return [
+   {name:'築基初期',ready:s.realm>=5,page:'hero',text:s.realm>=5?'境界已達整備建議':'建議先完成煉氣、煉製築基丹'},
+   {name:'法兵與仙衣',ready:v.atk>=35&&v.def>=30,page:'bag',text:'攻擊 '+v.atk+' / 建議35 · 防禦 '+v.def+' / 建議30'},
+   {name:'戰技已選',ready:!!s.phaseFour.skill,page:'combatHall',text:s.phaseFour.skill?'戰技會在遠征施展':'前往選擇奔雷斬等戰技'},
+   {name:'自動服丹',ready:s.settings.autoHeal&&this.quantity('heal')>=8,page:'quest',text:'聚元丹 '+this.quantity('heal')+' / 建議8 · '+(s.settings.autoHeal?'已啟用':'未啟用')}
+  ];};
+  Game.prototype.reincarnate=function(now){const old={...this.state.apprenticeship},s=rebirth.call(this,now);s.apprenticeship=old;return s;};
+  Game.prototype.validatePhase=function(){validate.call(this);const p=this.state.apprenticeship;if(!p||p.version!==1||!Number.isInteger(p.claimed)||p.claimed<0||p.claimed>STEPS.length)throw Error('入門行記資料不正確。');};
+ }
+ const api={STEPS,install};root.XIAN_APPRENTICE=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
 <script>(function(root){
@@ -1488,6 +1518,8 @@ window.XIAN_EXPANSION_RECTS=[[[17,27,289,285],[333,20,247,287],[580,55,349,254],
   World.install(XianGame);
   const Foundation=typeof module!=='undefined'?require('./mobile-foundation.js'):root.XIAN_FOUNDATION;
   Foundation.install(XianGame);
+  const Apprentice=typeof module!=='undefined'?require('./apprenticeship.js'):root.XIAN_APPRENTICE;
+  Apprentice.install(XianGame);
   root.XianGame=XianGame;if(typeof module!=='undefined')module.exports=XianGame;
 })(typeof window!=='undefined'?window:globalThis);
 </script>
@@ -2274,6 +2306,7 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
   }
   function nextGoalPanel(){const g=game.nextGoal();return `<section class="next-goal"><div><small>下一步</small><h2>${esc(g.title)}</h2><p>${esc(g.detail)}</p></div>${button('前往','foundation-goal','','','secondary')}</section>${game.state.foundation.lastRest?cell('離線修行回報',{sub:s().foundation.lastRest.reason+' · 修為 +'+s().foundation.lastRest.exp+' · 氣血 +'+s().foundation.lastRest.hp,action:'foundation-settings'}):''}`;}
   function saveSafetyPanel(){let backup=null,error='';try{backup=saveStore.inspect();}catch{error='備份無法通過驗證，原始資料已保留。';}const b=backup?.game.state,p=s().foundation;return section('手機修行 · 基礎更新 01')+`<label class="cell"><span class="cell-main">離線保護<span class="cell-sub">離線採正常速度修行；遠征、待往返、修為圓滿或壽元剩一年內暫停。關閉則沿用原設定補算。</span></span><input type="checkbox" class="switch" data-foundation-safe aria-label="離線保護" ${p.safeOffline?'checked':''}></label>`+section('存檔保障')+`<div class="padded"><p>${saveFailed?'目前停止自動寫入，請匯出進度或確認恢復備份。':'每次寫入與備份均先驗證；本機備份不等於雲端同步。'}</p><p>${b?'可恢復：第 '+b.incarnation+' 世 · '+D.REALMS[b.realm].name+' · '+b.gold+' 靈石':error||'尚無備份'}</p><div class="actions">${button('立即備份','foundation-backup','',saveFailed)}${button('恢復此備份','foundation-restore','',!backup,'secondary')}${button('匯出備份','foundation-export-backup','',!backup,'secondary')}${button('匯出恢復前原檔','foundation-export-previous','',!localStorage.getItem(saveStore.previous),'secondary')}</div></div>`;}
+  function apprenticePage(){const step=game.apprenticeStep(),busy=!!s().expedition||s().repeatPending;return section('入門行記 · '+s().apprenticeship.claimed+' / 6')+`<div class="padded"><p>補給每個存檔只能領取一次，跨輪迴保留領取紀錄；不會自動替換已裝備的玄寶。</p></div>`+window.XIAN_APPRENTICE.STEPS.map((x,i)=>`<article class="apprentice-row ${step?.index===i?'current':''}"><small>${i<s().apprenticeship.claimed?'已完成':i===step?.index?'進行中':'後續目標'} · ${i+1} / 6</small><h3>${x.name}</h3><p>${x.text}</p><p>補給：${x.reward}</p>${step?.index===i?`<div class="actions">${button('領取補給','apprentice-claim',i,busy||s().dead||!step.ready)}${button('前往準備','apprentice-go',x.page,false,'secondary')}</div>`:''}</article>`).join('')+section('初曦洞窟 · 百層行前檢查')+game.departureChecks().map(c=>cell(c.name,{sub:c.text,value:c.ready?'已準備':'待整備',action:'apprentice-go',id:c.page})).join('')+`<div class="padded"><p>此清單為初曦洞窟的入門建議，不保證所有秘境生還。可在遠征的行前安排啟用自動服丹；新領裝備須到百寶祭煉。</p>${button('前往初曦洞窟','world-route',0,busy||s().dead,'secondary')}</div>`;}
   function render(){
     const oldDefenseStage=$('screen').querySelector('#defense-stage');
     const scroll=$('screen').scrollTop,opened=new Set([...$('screen').querySelectorAll('details[open]')].map(el=>el.dataset.detailKey));
@@ -2285,7 +2318,9 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     const combatLink=()=>cell('戰技與試煉',{icon:'battle',sub:'戰技研習 · 宗門道場 · 本趟磨礪',action:'combat-hall'});
     const pages={hero:()=>attention()+combatLink()+divineLink()+hero(),quest,sect:()=>combatLink()+sect(),combatHall,divineForge,bestiary,realmRoadmap,craft:()=>divineLink()+relicGoal()+craft(),bag,book:()=>view.book==='monsters'?bestiary():book(),settings,journal:()=>journal(80),item:itemDetail,history,forge,regions,past,report,lore,relics,milestones};
     pages.worldAtlas=worldAtlas;
-    const originalHero=pages.hero;pages.hero=()=>nextGoalPanel()+originalHero();
+    pages.apprentice=apprenticePage;
+    names.apprentice='入門行記';
+    const originalHero=pages.hero;pages.hero=()=>nextGoalPanel()+cell('入門行記',{icon:'records',sub:'突破 · 換裝 · 戰技 · 煉丹 · 百層',value:s().apprenticeship.claimed+' / 6',action:'apprentice'})+originalHero();
     pages.settings=()=>saveSafetyPanel()+settings();
     const showBattle=view.page==='quest'&&!s().dead,content=(showBattle?worldEventPanel()+journeyPanel()+divineTracker():view.page==='divineForge'?divineTracker():view.page==='hero'?cell('山海圖志',{icon:'records',sub:'六域遊歷 · '+s().worldAtlas.found.length+' / 54 處地誌',action:'world-atlas'}):'')+(pages[view.page]||hero)();
     // Keep the stage mounted so periodic UI refreshes cannot restart an attack.
@@ -2319,6 +2354,10 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     const modal=e.target.closest('[data-modal]');if(modal){$('dialog').close();if(modal.dataset.modal==='confirm'&&modalCallback){const cb=modalCallback;modalCallback=null;cb();}return;}
     const tb=e.target.closest('[data-tab]');if(tb){tab(tb.dataset.tab);return;}
     const el=e.target.closest('[data-action]');if(!el||el.disabled)return;const a=el.dataset.action,id=el.dataset.id;
+    if(a==='foundation-goal'&&game.nextGoal().action==='apprentice-claim'){mutate(()=>game.claimApprentice(game.apprenticeStep().index));return;}
+    if(a==='apprentice'){names.apprentice='入門行記';go('apprentice');return;}
+    if(a==='apprentice-claim'){mutate(()=>game.claimApprentice(Number(id)));return;}
+    if(a==='apprentice-go'){names.combatHall='戰技與試煉';if(['hero','quest','sect','craft','bag'].includes(id))tab(id);else go(id);return;}
     if(a==='foundation-settings'){go('settings');return;}
     if(a==='foundation-goal'){const goal=game.nextGoal();if(goal.action==='foundation-resume'){mutate(()=>{s().settings.paused=false;s().lastTime=Date.now();});return;}if(goal.action==='breakthrough'){mutate(()=>game.breakthrough());return;}names.worldAtlas='山海圖志';names.combatHall='戰技與試煉';names.divineForge='神器碎片圖卷';if(['hero','quest','sect','craft','bag'].includes(goal.page))tab(goal.page);else go(goal.page);return;}
     if(a==='foundation-backup'){try{saveStore.checkpoint(game);render();toast('已驗證並建立備份。');}catch(e){toast('備份未完成：'+e.message);}return;}
