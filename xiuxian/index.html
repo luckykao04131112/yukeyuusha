@@ -705,15 +705,33 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
 <script>(function(root){
  'use strict';
  class SaveStore{
-  constructor(storage,Game,key='xiantu-save-v1'){this.storage=storage;this.Game=Game;this.key=key;this.backup=key+'-backup';this.previous=key+'-before-restore';}
-  load(){const raw=this.storage.getItem(this.key),backup=this.storage.getItem(this.backup);if(raw){try{return {game:this.Game.import(raw),locked:false};}catch{}}
+  constructor(storage,Game,key='xiantu-save-v1'){this.storage=storage;this.Game=Game;this.key=key;this.backup=key+'-backup';this.previous=key+'-before-restore';this.expected=storage.getItem(key);this.conflicted=false;this.writerState='fallback';}
+  acquireWriter(locks){
+   if(this.writerRequest)return this.writerRequest;
+   if(!locks?.request)return Promise.resolve('fallback');
+   this.writerState='pending';
+   this.writerRequest=new Promise(resolve=>{
+    // Keep the browser-owned lock until pagehide; a crashed tab releases it automatically.
+    try{this.writerTask=locks.request(this.key+'-writer',{mode:'exclusive',ifAvailable:true},lock=>{
+     if(this.writerState==='released'){resolve('released');return;}
+     if(!lock){this.writerState='blocked';this.conflicted=true;resolve('blocked');return;}
+     this.writerState='owned';
+     return new Promise(release=>{this.unlockWriter=release;resolve('owned');});
+    }).catch(()=>{this.writerState='error';this.conflicted=true;resolve('error');});}
+    catch{this.writerState='error';this.conflicted=true;resolve('error');}
+   });
+   return this.writerRequest;
+  }
+  releaseWriter(){this.writerState='released';this.conflicted=true;this.unlockWriter?.();this.unlockWriter=null;}
+  assertCurrent(){if(!['owned','fallback'].includes(this.writerState)||this.conflicted||this.storage.getItem(this.key)!==this.expected){this.conflicted=true;const error=Error('本頁不能寫入存檔。請關閉其他遊戲分頁，再重新載入最新進度。');error.code='SAVE_CONFLICT';throw error;}}
+  load(){const raw=this.storage.getItem(this.key),backup=this.storage.getItem(this.backup);this.expected=raw;this.conflicted=!['owned','fallback'].includes(this.writerState);if(raw){try{return {game:this.Game.import(raw),locked:this.conflicted};}catch{}}
    if(backup){try{return {game:this.Game.import(backup),locked:true,message:'已讀取備份預覽，原檔未覆寫。請至存檔保障確認恢復。'};}catch{}}
    return {game:new this.Game(),locked:!!raw||!!backup,message:raw||backup?'原檔與備份無法讀取，已保留。請先匯出原始資料。':''};
   }
-  save(game){const raw=game.export();this.Game.import(raw);this.storage.setItem(this.key,raw);}
-  checkpoint(game){const raw=game.export();this.Game.import(raw);this.storage.setItem(this.backup,raw);}
+  save(game){const raw=game.export();this.Game.import(raw);this.assertCurrent();this.storage.setItem(this.key,raw);this.expected=raw;}
+  checkpoint(game){const raw=game.export();this.Game.import(raw);this.assertCurrent();this.storage.setItem(this.backup,raw);}
   inspect(){const raw=this.storage.getItem(this.backup);if(!raw)return null;const game=this.Game.import(raw);return {game,raw};}
-  restore(raw){const game=this.Game.import(raw),previous=this.storage.getItem(this.key);if(previous!==null)this.storage.setItem(this.previous,previous);this.storage.setItem(this.key,game.export());return game;}
+  restore(raw){const game=this.Game.import(raw);this.assertCurrent();const previous=this.storage.getItem(this.key);if(previous!==null)this.storage.setItem(this.previous,previous);const next=game.export();this.storage.setItem(this.key,next);this.expected=next;return game;}
  }
  root.XianSaveStore=SaveStore;if(typeof module!=='undefined')module.exports=SaveStore;
 })(typeof window!=='undefined'?window:globalThis);
@@ -2185,7 +2203,7 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
  root.XianDefenseUI={render:(g,site)=>g.state.sectDefense.war?board(g,g.state.sectDefense.war):lobby(g,site),mount,selection};
 })(window);
 </script>
-<script>(function(){
+<script>(async function(){
   'use strict';
   const D=window.XIAN_DATA,Story=window.XIAN_STORY,P=window.XIAN_PHASE,R=window.XIAN_PHASE_TWO,T=window.XIAN_PHASE_THREE,Game=window.XianGame,KEY='xiantu-save-v1',BACKUP=KEY+'-backup';
   const $=id=>document.getElementById(id),esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2194,11 +2212,18 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
   const labels={weapon:'法兵',armor:'仙衣',accessory:'靈寶',pill:'丹藥',mat:'材料'};
   let game,recovery='',saveFailed=false,view={tab:'hero',page:'hero',filter:'all',craft:'pill',book:'monsters',dungeon:0,target:3,id:null,first:'',second:'',advanced:false,report:0},stack=[],modalCallback=null,lastRender=0,lastSave=0,toastTimer;
   let saveStore;
-  try{saveStore=new window.XianSaveStore(localStorage,Game,KEY);const loaded=saveStore.load();game=loaded.game;saveFailed=loaded.locked;recovery=loaded.message||'';}catch{saveStore??=new window.XianSaveStore({getItem:()=>null,setItem:()=>{throw Error('瀏覽器儲存空間無法使用');}},Game,KEY);game=new Game();saveFailed=true;recovery='無法存取瀏覽器儲存空間，請先匯出進度。';}
+  window.addEventListener('pagehide',()=>{try{if(game){game.advance();persist();}}finally{saveStore?.releaseWriter();}});
+  window.addEventListener('pageshow',e=>{if(e.persisted)location.reload();});
+  try{saveStore=new window.XianSaveStore(localStorage,Game,KEY);await saveStore.acquireWriter(navigator.locks);const loaded=saveStore.load();game=loaded.game;saveFailed=loaded.locked||saveStore.conflicted;recovery=loaded.message||'';}catch{saveStore??=new window.XianSaveStore({getItem:()=>null,setItem:()=>{throw Error('瀏覽器儲存空間無法使用');}},Game,KEY);game=new Game();saveFailed=true;recovery='無法存取瀏覽器儲存空間，請先匯出進度。';}
   const battle=new window.XianBattle.Stage();battle.bind(game);
-  function persist(){if(saveFailed)return;try{saveStore.save(game);lastSave=performance.now();}catch{saveFailed=true;toast('存檔驗證或寫入失敗，請先匯出存檔。');}}
+  function persist(){if(saveFailed)return;try{saveStore.save(game);lastSave=performance.now();}catch(e){saveFailed=true;toast(e.code==='SAVE_CONFLICT'?e.message:'存檔驗證或寫入失敗，請先匯出存檔。');}}
   function checkpoint(){if(saveFailed)return;try{saveStore.checkpoint(game);}catch{}}
-  function mutate(fn){try{game.advance();fn();persist();render();}catch(e){toast(e.message);}}
+  function mutate(fn){try{saveStore.assertCurrent();game.advance();fn();persist();render();}catch(e){toast(e.message);}}
+  const advanceGame=Game.prototype.advance;
+  Game.prototype.advance=function(...args){if(saveStore.conflicted)return 0;return advanceGame.apply(this,args);};
+  window.addEventListener('storage',e=>{if(e.key!==KEY&&e.key!==null)return;try{saveStore.assertCurrent();}catch(err){saveFailed=true;render();toast(err.message);}});
+  function rebirthSummary(){return `本世保留 ${fmt(Math.floor(s().gold*.5))} 靈石、圖錄、已領悟功法、戰技等級、試煉進度、神器碎片、山海發現及已領入門獎勵。境界、修為、年齡、裝備、一般材料、宗門職位、貢獻與弟子重置；已領獎勵不會重發。`;}
+  function sectGuide(){return `<details class="padded"><summary>宗門修行次序</summary><p>築基初期拜入宗門 → 完成委託累積貢獻 → 藏經閣領悟並修習功法 → 挑戰職位晉升。</p><p>派遣取得資源；招收弟子後再培養與編隊。功法領悟跨世保留，弟子與當世職位不保留。</p></details>`;}
   function toast(t){$('toast').textContent=t;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3300);}
   function attr(action,id=''){return `data-action="${action}" data-id="${esc(id)}"`;}
   function button(text,action,id='',disabled=false,style=''){return `<button type="button" class="action-button ${style}" ${attr(action,id)} ${disabled?'disabled':''}>${esc(text)}</button>`;}
@@ -2211,7 +2236,7 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
   function details(entry){if(!entry?.combat)return '';const c=entry.combat;return `<div class="battle-math"><span>每擊 ${fmt(c.damage)}</span><span>${c.rounds} 回合</span><span>敵每擊 ${fmt(c.enemyDamage)}</span><span>${c.evaded?'身法減傷 50%':'未觸發閃避'}</span><span>承傷 ${fmt(c.taken)}</span><span>剩餘氣血 ${fmt(entry.hpRemaining)}</span></div>${entry.loot.length?`<div class="loot-strip">${entry.loot.map(l=>`<span>${sprite(l.id)}<span>${esc(D.ITEMS_DICT[l.id].name)}${l.plus?' +'+l.plus:''}<small> ×${l.count}</small></span></span>`).join('')}</div>`:''}`;}
   function entryView(entry){return `<article class="story-entry ${esc(entry.kind)}"><div class="story-caption"><span>第 ${entry.floor} 層</span><span>${entry.kind==='quiet'?'平安通過':entry.hpRemaining?'戰勝':'重傷'}</span></div><h3>${esc(entry.title)}</h3><p>${esc(entry.text)}</p>${entry.combat?`<div class="story-outcome"><span>氣血 −${fmt(entry.hpLost)}</span>${entry.gold?`<span>靈石 +${fmt(entry.gold)}</span>`:''}<span>${entry.loot.length?'拾獲 '+entry.loot.length+' 份':'未獲戰利品'}</span></div><details class="combat-detail" data-detail-key="${entry.at}-${entry.floor}"><summary>戰鬥與拾獲詳情</summary>${details(entry)}</details>`:''}</article>`;}
   function journal(limit=6){const rows=[];for(const l of s().logs.slice(0,limit)){if(l.type==='quiet'&&rows.at(-1)?.type==='quiet'){rows.at(-1).count=(rows.at(-1).count||1)+1;continue;}rows.push({...l});}return `<div class="journal">${rows.map(l=>l.detail?.combat?entryView(l.detail):`<div class="journal-line ${esc(l.type)}"><time>${l.detail?.floor?'第 '+l.detail.floor+' 層':l.age+'歲'}</time><span>${esc(l.text)}${l.count?`<small> · ${l.count} 層安然走過</small>`:''}</span></div>`).join('')||'<div class="empty">山中無甲子，道途始於足下。</div>'}</div>`;}
-  function titlebar(){const st=s(),r=D.REALMS[st.realm];$('title').textContent=names[view.page]||names[view.tab];$('back').hidden=stack.length===0;$('world-stamp').textContent='第 '+st.incarnation+' 世';$('resource-bar').innerHTML=`<span>靈石 <strong>${fmt(st.gold)}</strong></span><span class="${r.maxAge+st.lifeBonus-st.age<10?'life-low':''}">${st.age} / ${r.maxAge+st.lifeBonus} 歲</span><span>${st.tick%120} / 120 息</span>`;$('activity').textContent=st.dead?'此世已終':st.settings.paused?'已暫停':st.expedition?'遠征中':st.repeatPending?'休養待行':st.settings.fast?'疾速吐納':'吐納中';$('activity').classList.toggle('stopped',st.dead||st.settings.paused);document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('selected',b.dataset.tab===view.tab);b.setAttribute('aria-current',b.dataset.tab===view.tab?'page':'false');});}
+  function titlebar(){const st=s(),r=D.REALMS[st.realm];$('title').textContent=names[view.page]||names[view.tab];$('back').hidden=stack.length===0;$('world-stamp').textContent='第 '+st.incarnation+' 世';$('resource-bar').innerHTML=`<span>靈石 <strong>${fmt(st.gold)}</strong></span><span class="${r.maxAge+st.lifeBonus-st.age<10?'life-low':''}">${st.age} / ${r.maxAge+st.lifeBonus} 歲</span><span>${st.tick%120} / 120 息</span>`;$('activity').textContent=saveStore.conflicted?'分頁已暫停':st.dead?'此世已終':st.settings.paused?'已暫停':st.expedition?'遠征中':st.repeatPending?'休養待行':st.settings.fast?'疾速吐納':'吐納中';$('activity').classList.toggle('stopped',saveStore.conflicted||st.dead||st.settings.paused);document.querySelectorAll('[data-tab]').forEach(b=>{b.classList.toggle('selected',b.dataset.tab===view.tab);b.setAttribute('aria-current',b.dataset.tab===view.tab?'page':'false');});}
   function hero(){
     const st=s(),r=D.REALMS[st.realm],v=game.stats(),max=st.realm===D.REALMS.length-1,req=game.breakthroughRequirement();if(st.dead)return death();
     return `<div class="hero-sheet"><div class="hero-heading"><div><h2>${r.name}</h2><p>${st.sect?D.SECTS.find(x=>x.id===st.sect).name+' · '+D.RANKS[st.rank]:'無門無派 · 一介散修'}</p></div><span class="realm-seal">問<br>道</span></div>${meter('氣血',st.hp,v.hp,'hp')}${meter(max?'道行圓滿':'修為',st.exp,r.maxExp,'exp')}<div class="attributes">${[['atk','攻擊'],['def','防禦'],['evd','身法'],['luck','福緣']].map(([k,l])=>`<div><b>${fmt(v[k])}</b><span>${l}</span></div>`).join('')}</div></div><div class="padded">${button(max?'仙帝圓滿 · 道行已成':'引劫破境 · '+D.REALMS[st.realm+1].name,'breakthrough','',!game.canBreakthrough())}${Object.keys(req).length?`<p>破境道材：${Object.entries(req).map(([id,n])=>D.ITEMS_DICT[id].name+' '+game.quantity(id)+' / '+n).join(' · ')}</p>`:''}</div>${cell('完整境界圖',{icon:'records',sub:'凡人至仙帝 · 52 階',action:'realm-roadmap'})}${section('玄寶祭壇')}${['weapon','armor','accessory'].map(slot=>{const i=game.item(st.equipment[slot]),look=slot==='armor'?window.XianArmor.profile(i):null;return cell(labels[slot],{icon:i?.id||slot,value:itemName(i),sub:i?itemStats(i)+(look?' · '+window.XianArmor.labels[look.type]: ''):'空置',action:i?'unequip':'go-bag',id:i?i.uid:slot,cls:'equipment-row'});}).join('')}${cell('萬象圖錄',{icon:'records',sub:'此世所見，來世之基',value:st.book.monsters.length+st.book.items.length+' 已點亮',action:'book'})}${cell('前塵錄',{icon:'records',value:st.lives.length+' 世',action:'past'})}<div class="section-head"><h2>問道紀事</h2><button ${attr('journal')}>全部紀事</button></div>${journal(5)}`;
@@ -2313,21 +2338,22 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     if(battle.game!==game)battle.bind(game);
     if(battle.incarnation!==s().incarnation){battle.clear();battle.incarnation=s().incarnation;}
     titlebar();
-    if(s().expedition?.journey?.pending.length)$('activity').textContent='機緣待選';
+    if(!saveStore.conflicted&&s().expedition?.journey?.pending.length)$('activity').textContent='機緣待選';
     const divineLink=()=>cell('神器碎片圖卷',{icon:'crystal',sub:'副本尋蹤 · 神器凝鑄 · 異獸圖鑑',action:'divine-forge'})+cell('百獸圖錄',{icon:'records',sub:'一百種異獸 · 棲地與戰鬥特性',action:'bestiary'});
     const combatLink=()=>cell('戰技與試煉',{icon:'battle',sub:'戰技研習 · 宗門道場 · 本趟磨礪',action:'combat-hall'});
-    const pages={hero:()=>attention()+combatLink()+divineLink()+hero(),quest,sect:()=>combatLink()+sect(),combatHall,divineForge,bestiary,realmRoadmap,craft:()=>divineLink()+relicGoal()+craft(),bag,book:()=>view.book==='monsters'?bestiary():book(),settings,journal:()=>journal(80),item:itemDetail,history,forge,regions,past,report,lore,relics,milestones};
+    const pages={hero:()=>attention()+combatLink()+divineLink()+hero(),quest,sect:()=>sectGuide()+combatLink()+sect(),combatHall,divineForge,bestiary,realmRoadmap,craft:()=>divineLink()+relicGoal()+craft(),bag,book:()=>view.book==='monsters'?bestiary():book(),settings,journal:()=>journal(80),item:itemDetail,history,forge,regions,past,report,lore,relics,milestones};
     pages.worldAtlas=worldAtlas;
     pages.apprentice=apprenticePage;
     names.apprentice='入門行記';
     const originalHero=pages.hero;pages.hero=()=>nextGoalPanel()+cell('入門行記',{icon:'records',sub:'突破 · 換裝 · 戰技 · 煉丹 · 百層',value:s().apprenticeship.claimed+' / 6',action:'apprentice'})+originalHero();
-    pages.settings=()=>saveSafetyPanel()+settings();
+    pages.settings=()=>section('分頁存檔狀態')+`<p class="padded">${saveStore.writerState==='owned'?'本頁持有存檔權限，其他分頁暫停寫入。':saveStore.writerState==='fallback'?'瀏覽器不支援分頁互斥，目前僅比對存檔版本。請只開一個遊戲分頁。':'本頁暫停寫入，請關閉其他遊戲分頁後重新載入。'}</p>`+saveSafetyPanel()+section('輪迴傳承')+`<p class="padded">${rebirthSummary()}</p>`+settings();
     const showBattle=view.page==='quest'&&!s().dead,content=(showBattle?worldEventPanel()+journeyPanel()+divineTracker():view.page==='divineForge'?divineTracker():view.page==='hero'?cell('山海圖志',{icon:'records',sub:'六域遊歷 · '+s().worldAtlas.found.length+' / 54 處地誌',action:'world-atlas'}):'')+(pages[view.page]||hero)();
     // Keep the stage mounted so periodic UI refreshes cannot restart an attack.
     if(showBattle){
       if(!$('battle-host'))$('screen').innerHTML='<div id="quest-command"></div><div id="battle-host"></div><div id="quest-content"></div>';
       $('quest-command').innerHTML=questBase();$('quest-content').innerHTML=content;battle.mount($('battle-host'),game);
     }else $('screen').innerHTML=content;
+    if(saveStore.conflicted)$('screen').insertAdjacentHTML('afterbegin',`<section class="padded" role="alert"><h2>${saveStore.writerState==='blocked'?'遊戲已在其他分頁開啟':saveStore.writerState==='error'?'無法取得存檔權限':'本頁存檔已暫停'}</h2><p>本頁已停止修行與寫入。可先匯出本頁進度；關閉其他遊戲分頁後，再載入最新存檔。</p><div class="actions">${button('匯出本頁進度','conflict-export')}${button('載入最新存檔','conflict-reload')}</div></section>`);
     const defenseSlot=$('screen').querySelector('#defense-stage');
     if(oldDefenseStage&&defenseSlot)defenseSlot.replaceWith(oldDefenseStage);
     window.XianDefenseUI.mount(game);
@@ -2341,6 +2367,7 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     if(heading&&portrait){const wounded=s().hp<=game.stats().hp*.25&&s().history[0]?.result==='昏厥',img=document.createElement('canvas');img.className='realm-portrait'+(wounded?' wounded-portrait':'');img.setAttribute('role','img');img.setAttribute('aria-label',D.REALMS[s().realm].name+'修士'+(wounded?' · 重傷調息':''));heading.querySelector('.realm-seal')?.replaceWith(img);window.XianHeroMotion.portrait(img,window.XianBattle.stageFor(s().realm).id,game.item(s().equipment.weapon),wounded?'defeated':'idle',game.item(s().equipment.armor)).catch(()=>{});}
     const soul=$('screen').querySelector('.departed-soul'),remains=$('screen').querySelector('.fallen-remains');if(soul&&remains){const stage=window.XianBattle.stageFor(s().realm).id,armor=game.item(s().equipment.armor);window.XianHeroMotion.portrait(soul,stage,null,'soul',armor).catch(()=>{});window.XianHeroMotion.portrait(remains,stage,game.item(s().equipment.weapon),'defeated',armor).catch(()=>{});}
     for(const el of $('screen').querySelectorAll('details'))if(opened.has(el.dataset.detailKey))el.open=true;
+    if(saveStore.conflicted)for(const el of $('screen').querySelectorAll('input,select,textarea,button[data-action]')){if(!['conflict-export','conflict-reload'].includes(el.dataset.action))el.disabled=true;}
     $('screen').scrollTop=scroll;lastRender=performance.now();
   }
   function go(page){stack.push({...view});view.page=page;$('screen').scrollTop=0;render();}
@@ -2354,6 +2381,9 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     const modal=e.target.closest('[data-modal]');if(modal){$('dialog').close();if(modal.dataset.modal==='confirm'&&modalCallback){const cb=modalCallback;modalCallback=null;cb();}return;}
     const tb=e.target.closest('[data-tab]');if(tb){tab(tb.dataset.tab);return;}
     const el=e.target.closest('[data-action]');if(!el||el.disabled)return;const a=el.dataset.action,id=el.dataset.id;
+    if(a==='conflict-export'){download(game.export(),'huilun-conflict-local.json');return;}
+    if(a==='conflict-reload'){confirm('載入最新存檔','捨棄本頁尚未存入的變動，重新載入其他分頁的最新進度。請先關閉其他遊戲分頁。',()=>location.reload());return;}
+    if(saveStore.conflicted){toast('本頁已暫停，請先匯出進度或載入最新存檔。');return;}
     if(a==='foundation-goal'&&game.nextGoal().action==='apprentice-claim'){mutate(()=>game.claimApprentice(game.apprenticeStep().index));return;}
     if(a==='apprentice'){names.apprentice='入門行記';go('apprentice');return;}
     if(a==='apprentice-claim'){mutate(()=>game.claimApprentice(Number(id)));return;}
@@ -2438,12 +2468,12 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     if(a==='use'){mutate(()=>game.use(id));return;}
     if(a==='sell'){confirm('兌換靈石','兌換後物品會離開百寶囊。',()=>mutate(()=>{game.sell(id);back();}));return;}
     if(a==='buy'){const o=s().market[Number(id)];confirm('購入'+D.ITEMS_DICT[o.id].name,'花費 '+fmt(o.price)+' 靈石。',()=>mutate(()=>game.buy(Number(id))));return;}
-    if(a==='rebirth'){confirm('踏入輪迴',`保留 ${fmt(Math.floor(s().gold*.5))} 靈石及完整圖錄。境界、宗門、裝備與材料將重置。`,()=>mutate(()=>{checkpoint();game.reincarnate();view={...view,page:'hero',tab:'hero',dungeon:0};stack=[];}));return;}
+    if(a==='rebirth'){confirm('踏入輪迴',rebirthSummary(),()=>mutate(()=>{checkpoint();game.reincarnate();view={...view,page:'hero',tab:'hero',dungeon:0};stack=[];}));return;}
     if(a==='export'){download(game.export(),'huilun-life-'+s().incarnation+'.json');return;}
     if(a==='export-raw'){download(localStorage.getItem(KEY)||'{}','xiantu-original.json');return;}
     if(a==='import')doImport($('import-text').value);
   });
-  document.addEventListener('change',async e=>{const el=e.target;if(el.dataset.setting){game.advance();s().settings[el.dataset.setting]=el.checked;s().lastTime=Date.now();persist();render();return;}
+  document.addEventListener('change',async e=>{const el=e.target;if(saveStore.conflicted){render();toast('本頁已暫停，請關閉其他遊戲分頁後重新載入。');return;}if(el.dataset.setting){mutate(()=>{s().settings[el.dataset.setting]=el.checked;s().lastTime=Date.now();});return;}
     if(el.dataset.rosterFilter){window.XianRosterUI.filter(el.dataset.rosterPanel,el.dataset.rosterFilter,el.value);render();return;}
     if(el.id==='beast-region'||el.id==='beast-query'){if(el.id==='beast-region')view.beastRegion=el.value;else view.beastQuery=el.value;view.beastPage=0;render();return;}
     if(el.hasAttribute('data-foundation-safe')){mutate(()=>{s().foundation.safeOffline=el.checked;s().lastTime=Date.now();});return;}
@@ -2459,8 +2489,8 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
   const offline=game.advance();persist();render();if(recovery)toast(recovery);else if(offline>10)toast('離線修行已結算 '+fmt(offline)+' 息。');
   setInterval(()=>{const ticks=game.advance();if(ticks){if(performance.now()-lastSave>=1000)persist();if(s().dead&&view.page!=='settings'){view.page='hero';view.tab='hero';stack=[];}}if(ticks&&performance.now()-lastRender>220&&!['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)&&!$('dialog').open)render();else titlebar();},60);
   setInterval(checkpoint,30000);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden){game.advance();game._background=true;persist();}else{game._background=false;game._resumeFromBackground=true;game.advance();persist();render();}});window.addEventListener('pagehide',()=>{game.advance();persist();});
-  window.reincarnate=()=>confirm('踏入輪迴','保留五成靈石與完整圖錄，重新開始一世。',()=>mutate(()=>{game.reincarnate();tab('hero');}));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){game.advance();game._background=true;persist();}else{game._background=false;game._resumeFromBackground=true;game.advance();persist();render();}});
+  window.reincarnate=()=>confirm('踏入輪迴',rebirthSummary(),()=>mutate(()=>{checkpoint();game.reincarnate();tab('hero');}));
 })();
 </script>
 </body>
