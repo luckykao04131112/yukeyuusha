@@ -1048,6 +1048,21 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
       const idleTicks=estimate(false),abodeTicks=estimate(true),ticks=active?abodeTicks:idleTicks,lifeTicks=Math.max(0,(r.maxAge+s.lifeBonus-s.age)*120-s.ageTicks);
       return {remaining,terminal,eligible,active,idleTicks,abodeTicks,ticks,normalSeconds:ticks*1.2,fastSeconds:ticks*.06,lifeRisk:remaining>0&&ticks>=lifeTicks,abodeExp:abode/1000,abodeGold:eligible?s.rank*150:0,requirements:terminal?[]:Object.entries(this.breakthroughRequirement()).map(([id,need])=>({id,need,have:this.quantity(id),missing:Math.max(0,need-this.quantity(id))}))};
     };
+    Game.prototype.materialSources=function(id){
+      if(!Object.hasOwn(D.ITEMS_DICT,id))throw Error('物品不存在。');
+      const s=this.state,T=typeof module!=='undefined'?require('./phase-three.js'):root.XIAN_PHASE_THREE;
+      const basic=['herb','iron','hide'].includes(id);
+      const dungeons=D.DUNGEONS.filter(d=>basic||id==='essence'||id==='crystal'&&d.id>=6||d.dropPool.includes(id)).map(d=>({id:d.id,name:d.name,realm:d.recommended,unlocked:s.realm>=d.recommended,purpose:basic?'gather':'hunt'}));
+      const recipe=D.RECIPES.find(r=>r.target===id);
+      const recipes=recipe?[{...recipe,missingGold:Math.max(0,recipe.gold-s.gold),materials:Object.entries(recipe.req).map(([item,need])=>({id:item,need,have:this.quantity(item)}))}]:[];
+      const jobs=s.sect?T.JOBS.map(j=>T.offer(j.id,s.sect)).filter(j=>j.reward.items[id]):[];
+      return {id,have:this.quantity(id),dungeons,recipes,jobs,market:s.market.filter(o=>o.id===id&&o.stock>0).map(o=>({price:o.price,stock:o.stock})),pending:(s.expedition?.loot||[]).filter(x=>x.id===id).reduce((n,x)=>n+x.count,0)};
+    };
+    Game.prototype.prepareMaterialRoute=function(id,dungeon){
+      const source=this.materialSources(id).dungeons.find(d=>d.id===dungeon);
+      if(!source||!source.unlocked)throw Error('此材料路線尚未開放。');
+      this.setRoute(dungeon,'custom',100);this.setPurpose(source.purpose);
+    };
     Game.prototype.expeditionStats=function(m){const v=stats.call(this,m),q=this.state.expedition,key=q?.growth;if(['atk','def','evd'].includes(key))v[key]=Math.floor(v[key]*(1+Math.floor(Math.max(0,q.floor-1)/10)*.02));return v;};
     Game.prototype.monster=function(d,f,type){const m=monster.call(this,d,f,type);if(f<5||this.state.expedition&&this.state.expedition.growth===undefined)return m;const t=TRAITS[(d+Math.floor((f-1)/5))%3];for(const k of ['hp','atk','def','evd'])if(t[k])m[k]=Math.ceil(m[k]*t[k]);m.trait=t.id;m.name=t.name+'・'+m.name;return m;};
     Game.prototype.attackSpeed=function(player=this.stats(),enemy={evd:0}){const p=this.state.phaseFour,skill=p.skill==='wind'?.25+p.levels.wind*.1:0;return Math.min(2,1+Math.max(0,player.evd-enemy.evd)/150+skill);};
@@ -2237,9 +2252,18 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
   function cultivationPanel(){
     if(s().dead)return '';const f=game.cultivationForecast(),duration=seconds=>{const n=Math.ceil(seconds),minutes=Math.ceil(n/60);return n<60?n+' 秒':minutes<60?minutes+' 分鐘':Math.floor(minutes/60)+' 小時 '+minutes%60+' 分鐘';};
     const status=f.terminal?'已臻最高境界':f.remaining?'尚需 '+fmt(f.remaining)+' 修為':'修為已圓滿';
-    return `<details class="padded cultivation-panel" data-detail-key="cultivation"><summary>破境籌備 · ${status}</summary>${!f.terminal?`<p>僅吐納與已啟用洞府估算：正常 ${duration(f.normalSeconds)}／疾速 ${duration(f.fastSeconds)}。疾速為正常的 20 倍；不含遠征、合修、補材與手動突破時間。離線保護採正常速度。</p>`:''}<p>${f.active?'洞府已啟用':f.eligible?'洞府尚未啟用':'長老職位開放洞府'}${f.eligible?' · 每 60 息 '+fmt(f.abodeGold)+' 靈石、'+fmt(f.abodeExp)+' 修為（滿修為時不再增加）':''}</p>${!f.terminal&&f.remaining&&f.eligible&&!f.active?`<p>啟用洞府後，正常修行預估 ${duration(f.abodeTicks*1.2)}。</p>`:''}${f.lifeRisk&&!f.terminal?'<p class="life-low">目前壽元不足以只靠上述收益完成修為，需增加修為來源或延壽。</p>':''}${!f.terminal?f.requirements.length?f.requirements.map(x=>cell(D.ITEMS_DICT[x.id].name,{value:fmt(x.have)+' / '+fmt(x.need),sub:x.missing?'尚缺 '+fmt(x.missing):'材料已備齊',icon:x.id})).join(''):'<p>此階破境不需額外材料。</p>':''}${s().settings.paused?'<p>修行時間已暫停。</p>':''}</details>`;
+    return `<details class="padded cultivation-panel" data-detail-key="cultivation"><summary>破境籌備 · ${status}</summary>${!f.terminal?`<p>僅吐納與已啟用洞府估算：正常 ${duration(f.normalSeconds)}／疾速 ${duration(f.fastSeconds)}。疾速為正常的 20 倍；不含遠征、合修、補材與手動突破時間。離線保護採正常速度。</p>`:''}<p>${f.active?'洞府已啟用':f.eligible?'洞府尚未啟用':'長老職位開放洞府'}${f.eligible?' · 每 60 息 '+fmt(f.abodeGold)+' 靈石、'+fmt(f.abodeExp)+' 修為（滿修為時不再增加）':''}</p>${!f.terminal&&f.remaining&&f.eligible&&!f.active?`<p>啟用洞府後，正常修行預估 ${duration(f.abodeTicks*1.2)}。</p>`:''}${f.lifeRisk&&!f.terminal?'<p class="life-low">目前壽元不足以只靠上述收益完成修為，需增加修為來源或延壽。</p>':''}${!f.terminal?f.requirements.length?f.requirements.map(x=>cell(D.ITEMS_DICT[x.id].name,{value:fmt(x.have)+' / '+fmt(x.need),sub:x.missing?'尚缺 '+fmt(x.missing):'材料已備齊',icon:x.id,action:'material-source',id:x.id})).join(''):'<p>此階破境不需額外材料。</p>':''}${s().settings.paused?'<p>修行時間已暫停。</p>':''}</details>`;
   }
   function toast(t){$('toast').textContent=t;$('toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').hidden=true,3300);}
+  function materialPage(){
+    const m=game.materialSources(view.materialId),busy=!!s().expedition||s().repeatPending;
+    return cell(D.ITEMS_DICT[m.id].name,{icon:m.id,value:'已入庫 '+fmt(m.have),sub:m.pending?'行囊另有 '+fmt(m.pending)+'，生還後才入庫':'遠征戰利品需生還才入庫；掉落非保證。'})+
+      m.recipes.map(r=>section('煉製所需')+r.materials.map(x=>cell(D.ITEMS_DICT[x.id].name,{icon:x.id,value:x.have+' / '+x.need,action:'material-source',id:x.id})).join('')+cell('煉製費用',{value:fmt(r.gold)+' 靈石',sub:r.missingGold?'尚缺 '+fmt(r.missingGold)+' 靈石':'費用已備齊'})+`<div class="padded">${button('前往丹器','material-craft')}</div>`).join('')+
+      section('其他來源')+cell('交易所',{sub:m.market.length?'目前有貨；價格與庫存以交易所為準':'目前無現貨，補貨品項隨機',action:'material-market'})+
+      m.jobs.map(j=>cell(j.name,{sub:'宗門派遣 · '+j.duration+' 息 · '+j.cost+' 靈石',value:'每次 '+j.reward.items[m.id],action:'material-dispatch',disabled:s().rank<j.rank})).join('')+
+      section('遠征來源')+(busy?'<p class="padded">遠征或自動往返進行中，歸來並停止往返後才能換路線。</p>':'')+
+      m.dungeons.map(d=>cell(d.name,{sub:D.REALMS[d.realm].name+' · '+(d.purpose==='gather'?'尋材':'討伐')+' · 百層生還入庫',value:d.unlocked?'整備路線':'尚未開放',action:'material-route',id:m.id+'|'+d.id,disabled:busy||!d.unlocked||s().dead})).join('')+(!m.dungeons.length?'<p class="padded">沒有已知的直接秘境掉落來源。</p>':'');
+  }
   function attr(action,id=''){return `data-action="${action}" data-id="${esc(id)}"`;}
   function button(text,action,id='',disabled=false,style=''){return `<button type="button" class="action-button ${style}" ${attr(action,id)} ${disabled?'disabled':''}>${esc(text)}</button>`;}
   function sprite(type){const d=D.ITEMS_DICT[type];if(d){const index=D.ITEM_ART[type];return `<span class="item-icon rarity-${Math.min(6,d.rare)}" style="background-position:${index%6*20}% ${Math.floor(index/6)*25}%" title="${esc(d.name)} · ${d.rare}階" data-art="${type}" aria-hidden="true"></span>`;}return `<span class="sprite ${type}" aria-hidden="true"></span>`;}
@@ -2358,6 +2382,7 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     const combatLink=()=>cell('戰技與試煉',{icon:'battle',sub:'戰技研習 · 宗門道場 · 本趟磨礪',action:'combat-hall'});
     const pages={hero:()=>attention()+combatLink()+divineLink()+hero(),quest,sect:()=>sectGuide()+combatLink()+sect(),combatHall,divineForge,bestiary,realmRoadmap,craft:()=>divineLink()+relicGoal()+craft(),bag,book:()=>view.book==='monsters'?bestiary():book(),settings,journal:()=>journal(80),item:itemDetail,history,forge,regions,past,report,lore,relics,milestones};
     pages.worldAtlas=worldAtlas;
+    pages.materialSources=materialPage;names.materialSources='補材來源';
     pages.apprentice=apprenticePage;
     names.apprentice='入門行記';
     const originalHero=pages.hero;pages.hero=()=>nextGoalPanel()+cultivationPanel()+cell('入門行記',{icon:'records',sub:'突破 · 換裝 · 戰技 · 煉丹 · 百層',value:s().apprenticeship.claimed+' / 6',action:'apprentice'})+originalHero();
@@ -2411,6 +2436,11 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     if(a==='foundation-export-previous'){download(localStorage.getItem(saveStore.previous)||'{}','huilun-before-restore.json');return;}
     if(a==='world-atlas'){names.worldAtlas='山海圖志';go('worldAtlas');return;}
     if(a==='world-region'){view.worldRegion=Number(id);render();return;}
+    if(a==='material-source'){if(!Object.hasOwn(D.ITEMS_DICT,id))return;stack.push({...view});view.materialId=id;view.page='materialSources';$('screen').scrollTop=0;render();return;}
+    if(a==='material-route'){const [item,region]=id.split('|');mutate(()=>{game.prepareMaterialRoute(item,Number(region));tab('quest');toast('補材路線已整備，尚未出發。');});return;}
+    if(a==='material-craft'){view.craft=D.ITEMS_DICT[view.materialId].type==='pill'?'pill':'gear';tab('craft');return;}
+    if(a==='material-market'){view.filter='market';tab('bag');return;}
+    if(a==='material-dispatch'){view.sectPanel='dispatch';tab('sect');return;}
     if(a==='world-choice'){mutate(()=>game.resolveWorldEvent(id));return;}
     if(a==='world-reward'){const [r,t]=id.split(':').map(Number);mutate(()=>game.claimWorldReward(r,t));return;}
     if(a==='world-route'){mutate(()=>{game.setRoute(Number(id),'custom',100);tab('quest');});return;}
