@@ -1063,6 +1063,27 @@ window.YUKE_DATA = {"version":2,"items":[{"name":"ショートソード","kind":
       if(!source||!source.unlocked)throw Error('此材料路線尚未開放。');
       this.setRoute(dungeon,'custom',100);this.setPurpose(source.purpose);
     };
+    Game.prototype.previewMaterialRoute=function(id,dungeon){
+      this.combatReady();
+      const source=this.materialSources(id).dungeons.find(d=>d.id===dungeon);
+      if(!source?.unlocked)throw Error('此材料路線尚未開放。');
+      const raw=this.export(),runs=[];
+      for(let i=0;i<8;i++){
+        const clone=Game.import(raw),s=clone.state;
+        s.seed=((s.seed+Math.imul(i+1,2654435761))>>>0)||1;
+        s.settings.paused=false;s.route.repeat=false;s.repeatPending=false;
+        if(s.journey.policy==='manual')clone.setJourneyPolicy('attack');
+        if(s.worldAtlas.policy==='manual')clone.setWorldPolicy('record');
+        const pills=clone.quantity('heal'),gold=s.gold;
+        clone.prepareMaterialRoute(id,dungeon);clone.start(dungeon,100);
+        let ticks=0;
+        while(s.expedition&&!s.dead&&ticks<200){clone.step();ticks++;}
+        if(s.expedition)throw Error('試算遇到待選事件，請改用自動機緣策略後再試。');
+        const h=s.history[0];
+        runs.push({result:h.result,floor:h.floor,ticks,pills:pills-clone.quantity('heal'),returned:h.result==='生還'?h.loot.filter(x=>x.id===id).reduce((n,x)=>n+x.count,0):0,goldLost:Math.max(0,gold-s.gold)});
+      }
+      return {id,dungeon,tick:this.state.tick,hp:this.state.hp,autoHeal:this.state.settings.autoHeal,journey:this.state.journey.policy==='manual'?'attack':this.state.journey.policy,world:this.state.worldAtlas.policy==='manual'?'record':this.state.worldAtlas.policy,runs};
+    };
     Game.prototype.expeditionStats=function(m){const v=stats.call(this,m),q=this.state.expedition,key=q?.growth;if(['atk','def','evd'].includes(key))v[key]=Math.floor(v[key]*(1+Math.floor(Math.max(0,q.floor-1)/10)*.02));return v;};
     Game.prototype.monster=function(d,f,type){const m=monster.call(this,d,f,type);if(f<5||this.state.expedition&&this.state.expedition.growth===undefined)return m;const t=TRAITS[(d+Math.floor((f-1)/5))%3];for(const k of ['hp','atk','def','evd'])if(t[k])m[k]=Math.ceil(m[k]*t[k]);m.trait=t.id;m.name=t.name+'・'+m.name;return m;};
     Game.prototype.attackSpeed=function(player=this.stats(),enemy={evd:0}){const p=this.state.phaseFour,skill=p.skill==='wind'?.25+p.levels.wind*.1:0;return Math.min(2,1+Math.max(0,player.evd-enemy.evd)/150+skill);};
@@ -2262,7 +2283,11 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
       section('其他來源')+cell('交易所',{sub:m.market.length?'目前有貨；價格與庫存以交易所為準':'目前無現貨，補貨品項隨機',action:'material-market'})+
       m.jobs.map(j=>cell(j.name,{sub:'宗門派遣 · '+j.duration+' 息 · '+j.cost+' 靈石',value:'每次 '+j.reward.items[m.id],action:'material-dispatch',disabled:s().rank<j.rank})).join('')+
       section('遠征來源')+(busy?'<p class="padded">遠征或自動往返進行中，歸來並停止往返後才能換路線。</p>':'')+
-      m.dungeons.map(d=>cell(d.name,{sub:D.REALMS[d.realm].name+' · '+(d.purpose==='gather'?'尋材':'討伐')+' · 百層生還入庫',value:d.unlocked?'整備路線':'尚未開放',action:'material-route',id:m.id+'|'+d.id,disabled:busy||!d.unlocked||s().dead})).join('')+(!m.dungeons.length?'<p class="padded">沒有已知的直接秘境掉落來源。</p>':'');
+      m.dungeons.map(d=>cell(d.name,{sub:D.REALMS[d.realm].name+' · '+(d.purpose==='gather'?'尋材':'討伐')+' · 百層生還入庫',value:d.unlocked?'試算與整備':'尚未開放',action:'material-preview',id:m.id+'|'+d.id,disabled:busy||!d.unlocked||s().dead})).join('')+(!m.dungeons.length?'<p class="padded">沒有已知的直接秘境掉落來源。</p>':'');
+  }
+  function materialPreviewPage(){
+    const p=view.materialPreview,r=p.runs,wins=r.filter(x=>x.result==='生還').length,range=key=>Math.min(...r.map(x=>x[key]))+' ～ '+Math.max(...r.map(x=>x[key])),mean=(r.reduce((n,x)=>n+x.returned,0)/r.length).toFixed(1),busy=s().dead||!!s().expedition||s().repeatPending;
+    return section(D.DUNGEONS[p.dungeon].name+' · 百層試算')+cell('情境生還',{value:wins+' / '+r.length,sub:'固定種子的模擬結果，不是實際勝率或掉落保證'})+cell(D.ITEMS_DICT[p.id].name,{icon:p.id,value:'平均 '+mean,sub:'每趟入庫 '+range('returned')+'；失敗按 0 計'})+cell('聚元丹消耗',{value:range('pills'),sub:p.autoHeal?'依試算時的自動服丹與庫存':'試算時未開啟自動服丹'})+cell('失敗靈石損失',{value:range('goldLost')})+`<div class="padded"><p>第 ${fmt(p.tick)} 息的裝備、氣血 ${fmt(p.hp)} 與庫存快照。試算不消耗任何資源；更換配置後請重新試算。</p><p>機緣：${{attack:'攻擊優先',guard:'防禦優先',speed:'身法優先'}[p.journey]}；遊歷：${p.world==='record'?'記錄地誌':'取寶'}。手動策略以攻擊優先／記錄地誌代算，實際選擇會改變結果。</p>${wins<r.length?'<p class="life-low">部分情境未能生還，建議先整備裝備、戰技或丹藥。</p>':''}<div class="actions">${button('重新試算','material-preview',p.id+'|'+p.dungeon,busy,'secondary')}${button('整備此路線','material-route',p.id+'|'+p.dungeon,busy)}</div></div>`+section('各情境結果')+r.map((x,i)=>cell('情境 '+(i+1)+' · '+x.result,{value:x.returned+' 份',sub:'第 '+x.floor+' 層 · '+x.ticks+' 息 · 耗丹 '+x.pills})).join('');
   }
   function attr(action,id=''){return `data-action="${action}" data-id="${esc(id)}"`;}
   function button(text,action,id='',disabled=false,style=''){return `<button type="button" class="action-button ${style}" ${attr(action,id)} ${disabled?'disabled':''}>${esc(text)}</button>`;}
@@ -2383,6 +2408,7 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     const pages={hero:()=>attention()+combatLink()+divineLink()+hero(),quest,sect:()=>sectGuide()+combatLink()+sect(),combatHall,divineForge,bestiary,realmRoadmap,craft:()=>divineLink()+relicGoal()+craft(),bag,book:()=>view.book==='monsters'?bestiary():book(),settings,journal:()=>journal(80),item:itemDetail,history,forge,regions,past,report,lore,relics,milestones};
     pages.worldAtlas=worldAtlas;
     pages.materialSources=materialPage;names.materialSources='補材來源';
+    pages.materialPreview=materialPreviewPage;names.materialPreview='補材行前試算';
     pages.apprentice=apprenticePage;
     names.apprentice='入門行記';
     const originalHero=pages.hero;pages.hero=()=>nextGoalPanel()+cultivationPanel()+cell('入門行記',{icon:'records',sub:'突破 · 換裝 · 戰技 · 煉丹 · 百層',value:s().apprenticeship.claimed+' / 6',action:'apprentice'})+originalHero();
@@ -2437,6 +2463,7 @@ window.XIAN_DAWN_RECTS=[[[74,127,221,161],[381,135,214,154],[650,103,259,176],[9
     if(a==='world-atlas'){names.worldAtlas='山海圖志';go('worldAtlas');return;}
     if(a==='world-region'){view.worldRegion=Number(id);render();return;}
     if(a==='material-source'){if(!Object.hasOwn(D.ITEMS_DICT,id))return;stack.push({...view});view.materialId=id;view.page='materialSources';$('screen').scrollTop=0;render();return;}
+    if(a==='material-preview'){try{const [item,region]=id.split('|'),result=game.previewMaterialRoute(item,Number(region));if(view.page!=='materialPreview')stack.push({...view});view.materialPreview=result;view.page='materialPreview';$('screen').scrollTop=0;render();}catch(e){toast(e.message);}return;}
     if(a==='material-route'){const [item,region]=id.split('|');mutate(()=>{game.prepareMaterialRoute(item,Number(region));tab('quest');toast('補材路線已整備，尚未出發。');});return;}
     if(a==='material-craft'){view.craft=D.ITEMS_DICT[view.materialId].type==='pill'?'pill':'gear';tab('craft');return;}
     if(a==='material-market'){view.filter='market';tab('bag');return;}
