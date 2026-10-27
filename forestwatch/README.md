@@ -1,21 +1,26 @@
-# Forestwatch / 森境守望：英雄塔防
+# Forestwatch: Thief Technology Campaign
 
-單人塔防遊戲：12 個塔位、3 種防禦塔、12 波敵軍，搭配一名可移動、升級、轉職的英雄。
+This is an adaptation of the economic-defense loop described for Warcraft III's Xiao Tou Feng Kuang Ke Ji, not a complete or exact recreation of that map.
 
-遊戲入口：https://luckykao04131112.github.io/yukeyuusha/forestwatch/
+Reference: https://www.kkdzpt.com/fab/1037
+Community reference: https://www.kkdzpt.com/fab/1037/637774fc15bcad5aa6cd6b89
 
-## 操作
+Implemented:
+- 60 waves; 20 leaked enemies lose the campaign. Every fifth wave has a boss.
+- Roadside construction grid, not the former twelve fixed circular pads.
+- Thieves earn gold on resolved hits, including killing hits; stale projectiles do not pay.
+- Twelve upgrades in six thief ranks; shamans grant a non-stacking 30% attack-speed aura; frost casters slow enemies.
+- Attack, haste and plunder technology, wood rewards and gold-to-wood purchases.
+- Retained mobile hero, knight/assassin/smith classes, stat allocation and event-timed combat feedback.
+- RTS-inspired bottom command panel and responsive mobile controls, using existing authorized-by-user RO sprites and custom scenery.
 
-- 建塔：選擇塔位後建造、升級、出售，並設定優先目標。
-- 英雄：點地面移動，點敵人追擊。騎士暈眩、刺客爆擊、鐵匠命中獲得金幣。
-- 能力點、武器強化、落雷及主動技能皆可使用。
-- 進度保存在目前瀏覽器。手機、電腦及本機檔案各自保存，不自動互通。
+Not implemented from the original: exact map geometry and models, original unit values, carrier/fighter tech, Li Shu retirement economy, population upkeep, multiplayer and the complete original equipment tree.
 
-## 素材與授權
+Save key: forestwatch-thief-v1. Original forestwatch-hero-v2 and forestwatch-save-v1 remain untouched. The former playable build is backed up locally as forestwatch_hero_legacy.html. Saves are browser-local and do not sync between devices or origins.
 
-地圖背景、建築與防禦塔為本專案生成美術；地圖配置、規則與數值為自製。
-RO 角色與魔物素材依專案使用者聲明的授權整合，原權利仍歸 Gravity Co., LTD & Lee MyoungJin (studio DTDS) 及相關權利人。
-素材來源：rd.fharr.com、assets.latam-tools.com.br、github.com/adsonpleal/ragassets。每組來源網址保留於單檔內的素材資料。
-本作不是官方 RO 產品，也不是特定魔獸爭霸自訂地圖的完整復刻。
+Source: hero.html, hero.css, thief.css, hero-model.js, hero-game.js; shared atlas and sprite manifests unchanged.
+Build: node work/package_forestwatch_hero.cjs
+Verify: node work/verify_forestwatch_thief.cjs
+Balance smoke test: node work/simulate_forestwatch_thief.cjs
 
-Phaser 3.90.0 與 Lucide 的授權文件隨此目錄提供。
+The smoke test uses scripted purchases and a deterministic RNG. A successful 60-wave run is not a claim that all strategies or difficulties are balanced. Browser tests cover desktop/mobile viewport sizes, not performance on physical phones.

@@ -1,10 +1,14 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#e8efea"><title>森境守望 · 英雄塔防</title><style>:root{font-family:"Microsoft JhengHei","PingFang TC",sans-serif;color:#283e37;background:#e8efea;font-synthesis:none;letter-spacing:0;color-scheme:light}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{border:1px solid #c1d0c6;background:#fafffa;color:#2d4a3b;border-radius:5px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px}button:hover:not(:disabled){background:#dcece2}button:focus-visible{outline:3px solid #da9c31;outline-offset:2px}button:disabled{opacity:.42;cursor:not-allowed}button svg{width:18px;height:18px;flex:none}button.primary{background:#28694e;border-color:#28694e;color:white}button.primary:hover:not(:disabled){background:#174e37}.icon{width:44px;height:44px;padding:10px;flex:none}.compact{padding:9px;min-width:44px}h1,h2,h3,p{margin:0}h1{font-size:25px}h2{font-size:17px}h3{font-size:13px}[hidden]{display:none!important}.app{max-width:1340px;margin:auto;padding:0 28px}header{height:90px;border-bottom:1px solid #c7d4ca;display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.crest{background:#274d3c;color:#efd38e;display:grid;place-items:center;width:44px;height:49px;clip-path:polygon(0 0,100% 0,100% 80%,50% 100%,0 80%)}.brand p{font-size:11px;color:#738679;margin-top:3px}.top-actions{display:flex;gap:8px;align-items:center}#save-status{font-size:11px;color:#6d7d70;margin-right:10px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;padding-top:22px}.battle{min-width:0}.battle-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}.battle-title>div>small{font-size:10px;color:#778877;display:block;margin-bottom:6px}.resources{display:flex;gap:23px}.resources>span{display:grid;grid-template-columns:18px auto;gap:3px 6px;align-items:center}.resources svg{width:17px;height:17px;color:#987529}.resources>span:first-child svg{color:#47856e}.resources b{font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}.resources small{grid-column:2;font-size:10px;color:#768477}#board{width:100%;aspect-ratio:6/5;position:relative;overflow:hidden;background:#8cac70;isolation:isolate;box-shadow:0 3px 0 #748366}#board canvas{display:block!important;width:100%!important;height:100%!important;touch-action:none}#loading{position:absolute;inset:0;display:grid;place-items:center}.board-status{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:1;pointer-events:none}.board-status span{color:#fff;background:#244d3cd9;border:1px solid #c8dfad77;padding:5px 9px;font-size:11px;border-radius:3px}.overlay{position:absolute;inset:0;background:#15392edb;z-index:4;display:flex;align-items:center;justify-content:center;gap:20px;flex-direction:column;color:white;text-align:center;padding:28px}.overlay h2{font-size:28px}.overlay p{font-size:13px;line-height:1.8}.overlay small{color:#eaca8b}.hero-vitals{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:12px}.hero-vitals>span{min-width:100px}.hero-vitals b{font-size:11px;min-width:75px;text-align:right;font-variant-numeric:tabular-nums}.bar{height:7px;flex:1;background:#cbd6cf;overflow:hidden}.bar span{display:block;height:100%;background:#3e926f;width:100%}.bar.hp span{background:#bb655d}.controls{display:flex;gap:7px;margin-top:13px}.controls #next{flex:1;white-space:nowrap}.controls .skill{border-color:#b69ac5;background:#f6f0fa;color:#715187;min-width:135px}.skill small{font-size:10px}.controls [aria-pressed=true]{background:#d0e4d8;border-color:#5a9176}#notice{font-size:12px;color:#657d6a;min-height:37px;padding-top:12px;line-height:1.7}.battle-log{border-top:1px solid #c6d5c9;padding-top:14px}.battle-log h3{display:flex;gap:6px;align-items:center}.battle-log svg{width:16px;height:16px}.battle-log ol{padding:0;margin:10px 0;list-style:none;display:grid;gap:5px;font-size:11px;color:#738477;min-height:54px}.battle-log li:first-child{color:#354f41}aside{border-left:1px solid #c5d3c8;padding-left:24px;min-width:0}aside section+section{border-top:1px solid #c5d3c8;padding-top:18px;margin-top:18px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:12px}.section-title h2{font-size:14px}.section-title>span{font-size:10px;color:#6d8271}.jobs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.job{display:flex;flex-direction:column;padding:5px 2px;gap:3px;min-width:0;height:121px;overflow:hidden;background:#f3f8f3}.job strong{font-size:12px}.job small{font-size:9px;color:#768875;white-space:nowrap}.job.active{background:#d9e8dc;border-color:#5c9979;box-shadow:inset 0 -3px #4c8668}.portrait{height:70px;width:70px;display:block;image-rendering:pixelated;background-repeat:no-repeat}.passive{font-size:11px;line-height:1.7;color:#6a7c6c;min-height:40px;padding:10px 0 3px}.xp-row{display:flex;align-items:center;gap:9px;font-size:12px}.xp-row small{font-size:10px}.xp span{background:#6e93b8}.compact-title{margin:18px 0 9px}.attributes{display:grid;gap:5px}.attributes>div{display:flex;align-items:center;gap:9px;font-size:12px}.attributes>div>span{flex:1}.attributes small{font-size:10px;color:#788a7c;margin-left:5px}.attributes b{font-variant-numeric:tabular-nums}.attributes .icon{width:44px;height:44px;padding:10px}.combat-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0 0}.combat-stats dt{font-size:10px;color:#728775}.combat-stats dd{font-size:19px;font-variant-numeric:tabular-nums;margin:5px 0 0}.forge>button{width:100%;justify-content:flex-start;font-size:12px;margin-top:7px}.forge>button>b{margin-left:auto;color:#a07929}#incoming{display:flex;gap:8px;flex-wrap:wrap}.incoming-unit{width:44px;text-align:center;font-size:9px;color:#718174}.incoming-unit img{width:44px;height:48px;object-fit:contain;image-rendering:pixelated}.settings{margin-top:20px;border-top:1px solid #c5d3c8;padding-top:15px;font-size:12px}.settings summary{cursor:pointer;min-height:30px}.settings>div{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.settings label{display:flex;align-items:center;gap:4px;min-height:35px;font-size:11px}.settings input{width:17px;height:17px;accent-color:#327453}.record{border-top:1px solid #c5d3c8;margin-top:15px;padding:15px 0;display:flex;align-items:center;gap:8px;font-size:11px;color:#718576}.record svg{width:18px;height:18px;color:#b38b30}.record b{margin-left:auto;color:#35563e}footer{border-top:1px solid #c5d3c8;margin-top:20px;padding:15px 0;display:flex;justify-content:space-between;gap:12px;font-size:10px;color:#7c8c7e}dialog{border:1px solid #bdd0c1;border-radius:8px;padding:25px;color:#2b4a36;max-width:min(90%,420px)}dialog::backdrop{background:#183c2dbb}dialog p{margin:16px 0 22px;font-size:14px;line-height:1.8}dialog>div{display:flex;justify-content:flex-end;gap:8px}
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#20221f"><title>森境守望 · 小偷科技戰役</title><style>:root{font-family:"Microsoft JhengHei","PingFang TC",sans-serif;color:#283e37;background:#e8efea;font-synthesis:none;letter-spacing:0;color-scheme:light}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{border:1px solid #c1d0c6;background:#fafffa;color:#2d4a3b;border-radius:5px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 12px}button:hover:not(:disabled){background:#dcece2}button:focus-visible{outline:3px solid #da9c31;outline-offset:2px}button:disabled{opacity:.42;cursor:not-allowed}button svg{width:18px;height:18px;flex:none}button.primary{background:#28694e;border-color:#28694e;color:white}button.primary:hover:not(:disabled){background:#174e37}.icon{width:44px;height:44px;padding:10px;flex:none}.compact{padding:9px;min-width:44px}h1,h2,h3,p{margin:0}h1{font-size:25px}h2{font-size:17px}h3{font-size:13px}[hidden]{display:none!important}.app{max-width:1340px;margin:auto;padding:0 28px}header{height:90px;border-bottom:1px solid #c7d4ca;display:flex;justify-content:space-between;align-items:center}.brand{display:flex;align-items:center;gap:12px}.crest{background:#274d3c;color:#efd38e;display:grid;place-items:center;width:44px;height:49px;clip-path:polygon(0 0,100% 0,100% 80%,50% 100%,0 80%)}.brand p{font-size:11px;color:#738679;margin-top:3px}.top-actions{display:flex;gap:8px;align-items:center}#save-status{font-size:11px;color:#6d7d70;margin-right:10px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;padding-top:22px}.battle{min-width:0}.battle-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}.battle-title>div>small{font-size:10px;color:#778877;display:block;margin-bottom:6px}.resources{display:flex;gap:23px}.resources>span{display:grid;grid-template-columns:18px auto;gap:3px 6px;align-items:center}.resources svg{width:17px;height:17px;color:#987529}.resources>span:first-child svg{color:#47856e}.resources b{font-size:18px;font-variant-numeric:tabular-nums;white-space:nowrap}.resources small{grid-column:2;font-size:10px;color:#768477}#board{width:100%;aspect-ratio:6/5;position:relative;overflow:hidden;background:#8cac70;isolation:isolate;box-shadow:0 3px 0 #748366}#board canvas{display:block!important;width:100%!important;height:100%!important;touch-action:none}#loading{position:absolute;inset:0;display:grid;place-items:center}.board-status{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;z-index:1;pointer-events:none}.board-status span{color:#fff;background:#244d3cd9;border:1px solid #c8dfad77;padding:5px 9px;font-size:11px;border-radius:3px}.overlay{position:absolute;inset:0;background:#15392edb;z-index:4;display:flex;align-items:center;justify-content:center;gap:20px;flex-direction:column;color:white;text-align:center;padding:28px}.overlay h2{font-size:28px}.overlay p{font-size:13px;line-height:1.8}.overlay small{color:#eaca8b}.hero-vitals{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:12px}.hero-vitals>span{min-width:100px}.hero-vitals b{font-size:11px;min-width:75px;text-align:right;font-variant-numeric:tabular-nums}.bar{height:7px;flex:1;background:#cbd6cf;overflow:hidden}.bar span{display:block;height:100%;background:#3e926f;width:100%}.bar.hp span{background:#bb655d}.controls{display:flex;gap:7px;margin-top:13px}.controls #next{flex:1;white-space:nowrap}.controls .skill{border-color:#b69ac5;background:#f6f0fa;color:#715187;min-width:135px}.skill small{font-size:10px}.controls [aria-pressed=true]{background:#d0e4d8;border-color:#5a9176}#notice{font-size:12px;color:#657d6a;min-height:37px;padding-top:12px;line-height:1.7}.battle-log{border-top:1px solid #c6d5c9;padding-top:14px}.battle-log h3{display:flex;gap:6px;align-items:center}.battle-log svg{width:16px;height:16px}.battle-log ol{padding:0;margin:10px 0;list-style:none;display:grid;gap:5px;font-size:11px;color:#738477;min-height:54px}.battle-log li:first-child{color:#354f41}aside{border-left:1px solid #c5d3c8;padding-left:24px;min-width:0}aside section+section{border-top:1px solid #c5d3c8;padding-top:18px;margin-top:18px}.section-title{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:12px}.section-title h2{font-size:14px}.section-title>span{font-size:10px;color:#6d8271}.jobs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.job{display:flex;flex-direction:column;padding:5px 2px;gap:3px;min-width:0;height:121px;overflow:hidden;background:#f3f8f3}.job strong{font-size:12px}.job small{font-size:9px;color:#768875;white-space:nowrap}.job.active{background:#d9e8dc;border-color:#5c9979;box-shadow:inset 0 -3px #4c8668}.portrait{height:70px;width:70px;display:block;image-rendering:pixelated;background-repeat:no-repeat}.passive{font-size:11px;line-height:1.7;color:#6a7c6c;min-height:40px;padding:10px 0 3px}.xp-row{display:flex;align-items:center;gap:9px;font-size:12px}.xp-row small{font-size:10px}.xp span{background:#6e93b8}.compact-title{margin:18px 0 9px}.attributes{display:grid;gap:5px}.attributes>div{display:flex;align-items:center;gap:9px;font-size:12px}.attributes>div>span{flex:1}.attributes small{font-size:10px;color:#788a7c;margin-left:5px}.attributes b{font-variant-numeric:tabular-nums}.attributes .icon{width:44px;height:44px;padding:10px}.combat-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:15px 0 0}.combat-stats dt{font-size:10px;color:#728775}.combat-stats dd{font-size:19px;font-variant-numeric:tabular-nums;margin:5px 0 0}.forge>button{width:100%;justify-content:flex-start;font-size:12px;margin-top:7px}.forge>button>b{margin-left:auto;color:#a07929}#incoming{display:flex;gap:8px;flex-wrap:wrap}.incoming-unit{width:44px;text-align:center;font-size:9px;color:#718174}.incoming-unit img{width:44px;height:48px;object-fit:contain;image-rendering:pixelated}.settings{margin-top:20px;border-top:1px solid #c5d3c8;padding-top:15px;font-size:12px}.settings summary{cursor:pointer;min-height:30px}.settings>div{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}.settings label{display:flex;align-items:center;gap:4px;min-height:35px;font-size:11px}.settings input{width:17px;height:17px;accent-color:#327453}.record{border-top:1px solid #c5d3c8;margin-top:15px;padding:15px 0;display:flex;align-items:center;gap:8px;font-size:11px;color:#718576}.record svg{width:18px;height:18px;color:#b38b30}.record b{margin-left:auto;color:#35563e}footer{border-top:1px solid #c5d3c8;margin-top:20px;padding:15px 0;display:flex;justify-content:space-between;gap:12px;font-size:10px;color:#7c8c7e}dialog{border:1px solid #bdd0c1;border-radius:8px;padding:25px;color:#2b4a36;max-width:min(90%,420px)}dialog::backdrop{background:#183c2dbb}dialog p{margin:16px 0 22px;font-size:14px;line-height:1.8}dialog>div{display:flex;justify-content:flex-end;gap:8px}
 .job:disabled{opacity:1}.job:disabled:not(.active){background:#e8eee8;color:#627567}
 .command-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.mode-switch,.side-tabs{display:flex;gap:0}.mode-switch button{border-radius:0;font-size:12px;min-width:80px}.mode-switch button:first-child{border-radius:5px 0 0 5px}.mode-switch button:last-child{border-radius:0 5px 5px 0}.mode-switch [aria-pressed=true],.tower-targets [aria-pressed=true]{background:#d0e4d8;border-color:#639578}#mode-status{font-size:11px;color:#66806e}.side-tabs{border-bottom:1px solid #a9c2ae;margin-bottom:18px}.side-tabs button{flex:1;border:0;border-bottom:3px solid transparent;border-radius:0;background:transparent;font-size:13px}.side-tabs [aria-selected=true]{border-bottom-color:#287453;color:#1e6848;background:#d9e8de}.tower-choice{display:grid;grid-template-columns:58px 1fr auto;width:100%;min-height:90px;margin-bottom:7px;text-align:left;padding:6px 10px}.tower-choice img{width:53px;height:76px;object-fit:contain}.tower-choice strong{display:block;font-size:13px}.tower-choice small{display:block;font-size:10px;color:#758573;margin-top:6px}.tower-choice>b{font-size:13px;color:#967021}.tower-summary{display:flex;align-items:center;gap:15px}.tower-art{display:block;width:85px;height:108px;background-size:contain;background-position:center;background-repeat:no-repeat}.tower-summary h3{font-size:16px}.tower-summary p{font-size:12px;color:#718272;margin-top:8px}.tower-targets{display:flex;gap:7px;margin:18px 0 10px}.tower-targets button{flex:1;padding:7px;font-size:12px}#tower-upgrade,#tower-sell{width:100%;margin-top:7px;font-size:12px}.pad-title{margin-top:23px}#tower-pads{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}#tower-pads button{min-width:0;padding:5px;font-size:11px}#tower-pads button.built{background:#d3e2cf}#tower-pads button.selected{background:#2b7051;color:white;border-color:#2b7051}.range-option{display:flex;align-items:center;gap:6px;font-size:11px;margin-top:14px;min-height:35px}.range-option input{accent-color:#317454;width:17px;height:17px}.reinforcements{border-top:1px solid #c5d3c8;padding-top:18px;margin-top:18px}#spell{color:#79608e}#spell.aiming{background:#eee0f5;border-color:#9573ad}#spell small{font-size:10px}
 @media(max-width:1050px){.app{padding:0 16px}.layout{grid-template-columns:minmax(0,1fr) 270px;gap:18px}aside{padding-left:17px}.resources{gap:12px}.controls{flex-wrap:wrap}.controls #next{min-width:110px}.controls .skill{min-width:120px}}
 @media(max-width:760px){.app{padding:0 12px}header{height:74px}h1{font-size:21px}.crest{width:35px;height:40px}.brand{gap:8px}#save-status{display:none}.layout{display:flex;flex-direction:column;gap:18px;padding-top:16px}.battle-title h2{font-size:14px}.battle-title>div>small{font-size:9px}.resources{gap:11px}.resources>span{display:flex;flex-direction:column;gap:3px}.resources b{font-size:14px}.resources small{display:none}.resources svg{width:15px;height:15px}#board{margin-inline:-12px;width:calc(100% + 24px)}.board-status{top:8px;left:8px;right:8px}.board-status span{font-size:9px;padding:4px 6px}.hero-vitals{font-size:11px;gap:8px}.hero-vitals>span{min-width:88px}.controls{display:grid;grid-template-columns:44px 44px minmax(0,1fr) minmax(0,1.7fr)}.controls #next{grid-column:1/-1;min-height:44px}.controls .skill{min-width:0;font-size:11px;gap:4px;padding-inline:5px}.controls .skill small{font-size:9px}.controls #follow{font-size:11px;padding-inline:4px}aside{border-left:0;border-top:1px solid #c5d3c8;padding:18px 0 0}.job{height:128px}.portrait{height:77px;width:77px}.job strong{font-size:13px}.job small{font-size:10px}.attributes{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.attributes>div{flex-wrap:wrap;justify-content:space-between}.attributes>div>span{flex-basis:65%}.attributes>div>b{min-width:15px}.attributes button{width:100%!important}.attributes small{display:block;margin:3px 0}.combat-stats{margin-top:14px}.combat-stats dd{font-size:20px}.settings>div{grid-template-columns:repeat(2,1fr)}footer{line-height:1.8;font-size:9px}.battle-log ol{min-height:45px}}
 @media(max-width:760px){.controls{grid-template-columns:44px 44px minmax(65px,1fr) minmax(100px,1.4fr)}.controls #spell{grid-column:1/3;grid-row:2}.controls #next{grid-column:3/5;grid-row:2}#tower-builds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.tower-choice{display:flex;flex-direction:column;min-width:0;text-align:center;padding:5px;min-height:145px;gap:3px}.tower-choice img{height:70px}.tower-choice strong{font-size:11px}.tower-choice small{font-size:9px}.tower-choice>b{font-size:12px}#tower-pads{grid-template-columns:repeat(6,minmax(0,1fr))}.command-bar #mode-status{font-size:10px}.mode-switch button{min-width:70px;padding-inline:9px}}
+</style><style>:root{color-scheme:dark;background:#171a17;color:#e3e4d6}body{background:#171a17}button{background:#34382f;border-color:#77735a;color:#ebe8d8;border-radius:2px}button:hover:not(:disabled){background:#4c5340}button.primary{background:#647445;border-color:#a7b67b;color:#fff}h1{font-size:19px}.app{max-width:1440px;padding:0 14px}header{height:56px;border-color:#63634c}.brand p{color:#c6bc8a}.crest{height:34px;width:30px;background:#414c34}.top-actions #save-status{color:#adb4a5}.layout{display:block;padding-top:8px}.battle{display:grid;grid-template-columns:180px minmax(0,1fr) 180px;gap:0 14px}.battle-title{grid-column:1/-1;background:#292d25;border-block:1px solid #75735a;padding:8px 12px;margin:0}.battle-title>div>small{color:#b6ba9f;margin:0 0 3px}.battle-title h2{font-size:14px}.resources{gap:22px}.resources b{color:#f7d878;font-size:17px}.resources small{color:#b3b9a6}.command-bar{grid-column:1;grid-row:2;display:block;padding-top:12px}.mode-switch{display:grid}.mode-switch button{border-radius:0!important}.command-bar #mode-status{display:block;color:#c6c4a7;line-height:1.8;margin-top:10px}#board{grid-column:2;grid-row:2/6;max-height:64vh;max-width:768px;justify-self:center;margin:0;width:100%;aspect-ratio:6/5;box-shadow:0 0 0 2px #696951}.hero-vitals{grid-column:1;grid-row:3;flex-wrap:wrap;align-content:start;margin:10px 0}.hero-vitals .bar{flex-basis:100%}.hero-vitals>span{color:#ead790}.controls{grid-column:3;grid-row:2/5;display:grid;grid-template-columns:1fr 1fr;align-content:start;margin:12px 0;gap:7px}.controls #skill,.controls #next{grid-column:1/-1;min-width:0;white-space:normal}.controls #skill{background:#413344;border-color:#88708e;color:#efdff7}.controls #follow{grid-column:1/-1}.controls #spell{color:#d4b9ef}.controls [aria-pressed=true],.mode-switch [aria-pressed=true],.tower-targets [aria-pressed=true]{background:#515d36;border-color:#aaa06c;color:#fff}#notice{grid-column:1/-1;color:#c5c9ae;padding:9px 0;min-height:35px}.battle-log{grid-column:1;grid-row:4/6;border-color:#535b45;margin-top:10px}.battle-log ol{color:#aeb6a1;line-height:1.7}.battle-log li:first-child{color:#dbdfc8}aside{border:1px solid #74725a;background:#272b25;padding:12px;display:grid;grid-template-columns:110px minmax(0,1.5fr) minmax(0,1fr) 200px;gap:14px;align-items:start}.side-tabs{display:grid;margin:0;border:0}.side-tabs button{color:#bac3ad;border-bottom:1px solid #535e47}.side-tabs [aria-selected=true]{background:#4c5937;color:#f6e6aa;border-color:#b8a66e}.defense-section .section-title h2{font-size:15px}.section-title>span,.tower-choice small,.combat-stats dt,.tower-summary p,.passive{color:#b9c0a8}.tower-choice{grid-template-columns:44px 1fr auto;min-height:64px;margin-bottom:5px}.tower-choice img{width:38px;height:50px}.tower-choice>b{color:#f7d675}.tower-summary{gap:10px}.tower-art{width:55px;height:65px}.tower-targets{margin:8px 0}.combat-stats{margin:8px 0}.combat-stats dd{font-size:17px}.pad-title,#tower-pads{display:none}.range-option{margin:8px 0;color:#b9c5ad}.technology{border-left:1px solid #555b46;padding-left:14px}.technology h2{font-size:14px;margin-bottom:8px}.technology button{width:100%;justify-content:space-between;margin-bottom:5px;font-size:12px;flex-wrap:wrap;text-align:left}.technology small{font-size:10px;color:#ded2a2}.economy{font-size:11px;color:#e2ce85;margin-bottom:7px}.reinforcements{margin:0!important;padding:0!important;border:0!important}.incoming-unit{color:#bdc5b0}.settings{grid-column:1/-1;margin:0;padding-top:7px;border-color:#555b46}.settings>div{display:flex;flex-wrap:wrap}.record{display:none}.job{background:#30372d;height:100px}.job:disabled:not(.active){background:#30372d;color:#d6d9c5}.job.active{background:#52603d;border-color:#bbad75}.portrait{height:54px;width:54px}.job small{color:#b9c7ad}.attributes{grid-template-columns:repeat(3,1fr);gap:8px}.attributes>div{flex-wrap:wrap}.attributes small{color:#adb9a1}.forge{margin-top:10px!important;padding-top:8px!important;border-color:#555b46!important}.forge>button>b{color:#e8d178}footer{border-color:#515b46;color:#aab49e;margin-top:10px}dialog{background:#30382b;color:#e6e9db}#tower-upgrade,#tower-sell{width:auto;display:inline-flex}.board-status span{background:#222a1ee8;color:#ece8be;border-color:#9a9f73}.bar{background:#121811}
+@media(min-width:901px){#board{width:min(100%,calc(52vh * 1.2));max-height:none}.battle{grid-template-columns:180px minmax(0,1fr) 180px}.tower-art{height:50px;width:45px}.tower-summary{float:left;min-width:160px}.combat-stats{margin:0 0 8px}.tower-targets{clear:both}.tower-targets button{min-height:36px}#tower-upgrade,#tower-sell{min-height:36px}.range-option{min-height:24px;margin:5px 0}.technology button{min-height:38px;padding:6px 9px}.technology small{font-size:9px}.section-title{margin-bottom:7px}.battle-log ol{font-size:10px}.tower-choice{min-height:54px}.tower-choice img{height:40px}.settings summary{min-height:22px}}
+@media(max-width:900px){.battle{grid-template-columns:120px minmax(0,1fr) 120px;gap:0 8px}.controls{display:flex;flex-wrap:wrap}.controls>*{flex:1}.controls #skill,.controls #next{flex-basis:100%}.controls .skill span{font-size:11px}.battle-log{display:none}aside{grid-template-columns:90px minmax(0,1fr) minmax(0,1fr)}.reinforcements{display:none}.resources{gap:12px}#board{max-height:none}}
+@media(max-width:600px){.app{padding:0 6px}header{height:49px}.brand p{font-size:9px}h1{font-size:17px}.battle{display:flex;flex-direction:column;gap:0}.battle-title{padding:7px 6px}.battle-title>div>small{font-size:9px}.battle-title h2{font-size:12px}.resources{gap:10px}.resources b{font-size:13px}.resources>span{display:flex;flex-direction:row;gap:3px}.resources small{display:none}.command-bar{display:flex;align-items:center;padding:5px 0;margin:0}.mode-switch{display:flex}.mode-switch button{min-height:38px}.command-bar #mode-status{font-size:10px;margin:0}#board{width:100%;margin:0;max-height:none}.hero-vitals{display:flex;flex-direction:row;flex-wrap:nowrap;margin:7px 0}.hero-vitals .bar{flex-basis:auto}.controls{display:grid;grid-template-columns:40px 42px 1fr 1.5fr;margin:0;gap:4px}.controls #follow{grid-column:3}.controls #skill{grid-column:4;grid-row:1}.controls #spell{grid-column:1/3;grid-row:2}.controls #next{grid-column:3/5;grid-row:2}.controls .icon{width:40px}.controls button{min-height:42px}.controls .skill{min-width:0}.controls .skill svg{display:none}#notice{font-size:10px;line-height:1.5;min-height:30px;padding:6px 0}aside{padding:8px;grid-template-columns:minmax(0,1fr);gap:10px}.side-tabs{display:flex}.side-tabs button{min-height:38px}#tower-builds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.tower-choice{min-height:110px;display:flex;flex-direction:column;padding:4px;margin:0}.tower-choice img{height:40px}.tower-choice strong{font-size:12px}.tower-choice small{font-size:9px}.technology{border-left:0;border-top:1px solid #555b46;padding:10px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:5px}.technology h2,.economy{grid-column:1/-1;margin:0}.technology button{margin:0;min-height:48px}.technology small{font-size:9px}.section-title{margin-bottom:7px}.range-option{min-height:25px}.combat-stats{grid-template-columns:repeat(3,1fr)}.attributes>div>span{flex-basis:auto}.attributes button{width:44px!important}.attributes small{display:none}footer{font-size:9px}.settings{grid-column:auto}.jobs .portrait{height:50px;width:50px}}
 </style></head>
 <body><main class="app">
 <header><div class="brand"><span class="crest"><i data-lucide="swords"></i></span><div><h1>森境守望</h1><p>英雄塔防</p></div></div><div class="top-actions"><span id="save-status">本機存檔</span><button id="sound" class="icon" title="音效" aria-label="音效" aria-pressed="false"><i data-lucide="volume-x"></i></button><button id="restart" class="icon" title="重新開局" aria-label="重新開局"><i data-lucide="rotate-ccw"></i></button></div></header>
@@ -86,7 +90,25 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
 </script><script>(function (root) {
   'use strict';
   const Defense = typeof module !== 'undefined' ? require('./model.js') : root.Forestwatch;
-  const { TYPES, PADS, stats: towerStats } = Defense;
+  const TYPES = {
+    arrow: {name:'小偷',cost:90,frame:0,color:0xffd66b,tag:'命中掠金 · 經濟主力'},
+    cannon: {name:'嗜血薩滿',cost:180,frame:1,color:0xe87972,tag:'周圍友軍攻速 +30%'},
+    frost: {name:'寒冰法師',cost:150,frame:2,color:0x88dffa,tag:'緩速 · 控場支援'}
+  };
+  const PADS=[];
+  for(const y of [195,240,375,420,545]) for(let x=75;x<=660;x+=45) {
+    if ((y===195||y===240)&&x>525 || (y===375||y===420)&&x<195) continue;
+    PADS.push([x,y]);
+  }
+  const RANKS=['小偷','盜賊','神偷','盜俠','盜王','盜聖'];
+  function towerStats(t) {
+    const base=TYPES[t.type], l=t.level-1;
+    return {...base,name:t.type==='arrow'?RANKS[Math.min(5,Math.floor(l/2))]:base.name,
+      damage:Math.round((t.type==='arrow'?10:t.type==='frost'?6:3)*Math.pow(1.62,l)),
+      rate:Math.max(.18,(t.type==='arrow'?.72:t.type==='frost'?1.1:1.4)/ (1+l*.08)),
+      range:135+l*6, income:t.type==='arrow'?2+l*2:0,
+      upgrade:Math.round(base.cost*.85*Math.pow(1.64,l)),maxLevel:12};
+  }
   const JOBS = {
     novice: { name: '初心者', attack: 25, rate: .65, crit: .08, hp: 180, skill: '奮力一擊', color: 0xd7e8dd },
     knight: { name: '騎士', attack: 32, rate: .73, crit: .10, hp: 270, skill: '震地衝擊', color: 0x55d5ef },
@@ -113,8 +135,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
   }
   function wavePlan(w) {
     const pool = MONSTERS.slice(0, Math.min(13, 2 + w));
-    const list = Array.from({ length: 7 + w * 2 }, (_, i) => pool[(i + w - 1) % pool.length][0]);
-    if (w % 4 === 0) list.push('boss');
+    const list = Array.from({ length: 12 + Math.min(24,w) }, (_, i) => pool[(i + w - 1) % pool.length][0]);
+    if (w % 5 === 0) list.push('boss');
     return list;
   }
   class Engine {
@@ -133,7 +155,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     }
     constructor(route, saved, rng = Math.random) {
       this.route = route; this.rng = rng; this.events = [];
-      this.s = { version: 3, gold: 240, base: 20, wave: 0, phase: 'build', kills: 0, earned: 0, time: 0,
+      this.s = { version: 4, gold: 360, wood:0, tech:{attack:0,haste:0,greed:0}, base: 20, wave: 0, phase: 'build', kills: 0, earned: 0, time: 0,
         towers: [], shots: [], spellCd: 0,
         enemies: [], queue: [], spawn: 0, nextId: 1, paused: false, speed: 1, auto: false, nextWait: 0,
         best: 0, hero: { job: 'novice', x: 210, y: 172, hp: 180, level: 1, xp: 0, points: 0,
@@ -158,7 +180,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     }
     upgradeTower(pad) {
       const t = this.tower(pad);
-      if (!this.active() || !t || t.level >= 3) return false;
+      if (!this.active() || !t || t.level >= 12) return false;
       const cost = towerStats(t).upgrade;
       if (this.s.gold < cost) return false;
       this.s.gold -= cost; t.spent += cost; t.level++; this.emit('buildTower', { pad }); return true;
@@ -181,6 +203,16 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       this.emit('towerHit', { id: e.id, damage, ...this.pos(e) });
       if (!e.hp) this.defeat(e);
     }
+    research(key) {
+      if(!this.active() || !Object.hasOwn(this.s.tech,key)) return false;
+      const level=this.s.tech[key],cost=150*(level+1),wood=level+1;
+      if(level>=10||this.s.gold<cost||this.s.wood<wood)return false;
+      this.s.gold-=cost;this.s.wood-=wood;this.s.tech[key]++;return true;
+    }
+    exchange() {
+      if(!this.active()||!this.canSpend(100))return false;
+      this.s.gold-=100;this.s.wood+=5;return true;
+    }
     strike(x, y) {
       const s = this.s;
       if (!this.active() || s.phase !== 'combat' || s.spellCd > 0 || !Number.isFinite(x+y) || x<0 || x>720 || y<0 || y>600) return false;
@@ -195,10 +227,16 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         shot.time -= dt; if (shot.time > 0) continue;
         const enemy = this.enemy(shot.enemy); if (!enemy) continue;
         const p = this.pos(enemy);
-        if (shot.type === 'cannon') {
+        if (shot.type === 'blast') {
           for (const e of s.enemies) if (e.hp>0 && DIST(this.pos(e),p)<=72) this.towerHurt(e,shot.damage);
           this.emit('blast',p);
-        } else { this.towerHurt(enemy,shot.damage); if (shot.type==='frost' && enemy.hp>0) enemy.slow=2.4; }
+        } else {
+          if(shot.type==='arrow') {
+            const money=shot.income||2;s.gold+=money;s.earned+=money;
+            this.emit('plunder',{...p,money});
+          }
+          this.towerHurt(enemy,shot.damage); if (shot.type==='frost' && enemy.hp>0) enemy.slow=2.4;
+        }
       }
       s.shots = s.shots.filter(v => v.time > 0);
       for (const t of s.towers) {
@@ -207,7 +245,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         const enemies=s.enemies.filter(e=>e.hp>0 && DIST(this.pos(e),p)<=d.range);
         enemies.sort(t.target==='strong'?(a,b)=>b.hp-a.hp:(a,b)=>b.progress-a.progress);
         const e=enemies[0]; if(!e) continue;
-        t.cooldown=d.rate; s.shots.push({enemy:e.id,type:t.type,damage:d.damage,time:.16});
+        const buff=s.towers.some(a=>a.type==='cannon'&&a!==t&&DIST(p,{x:PADS[a.pad][0],y:PADS[a.pad][1]})<=170);
+        t.cooldown=d.rate/((buff?1.3:1)*(1+s.tech.haste*.08));
+        s.shots.push({enemy:e.id,type:t.type,damage:Math.round(d.damage*(1+s.tech.attack*.18)),income:d.income+s.tech.greed,time:.16});
         const end=this.pos(e); this.emit('towerShot',{pad:t.pad,kind:t.type,x:p.x,y:p.y-46,tx:end.x,ty:end.y-14});
       }
     }
@@ -242,19 +282,18 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       this.s.gold -= cost; h.weapon++; return true;
     }
     repair() {
-      if (!this.active() || this.s.base >= 20 || !this.canSpend(90)) return false;
-      this.s.gold -= 90; this.s.base = Math.min(20, this.s.base + 5); return true;
+      return false;
     }
     start() {
       const s = this.s;
-      if (s.phase !== 'build' || s.wave >= 12 || !s.towers.length) return false;
+      if (s.phase !== 'build' || s.wave >= 60 || !s.towers.length) return false;
       s.wave++; s.phase = 'combat'; s.queue = wavePlan(s.wave); s.spawn = .5; s.paused = false;
       this.emit('wave', { wave: s.wave }); return true;
     }
     spawn(kind) {
       const s = this.s, boss = kind === 'boss';
       const m = MONSTERS.find(m => m[0] === (boss ? 'ghostring' : kind)) || MONSTERS[0];
-      const hp = Math.round(m[2] * Math.pow(1.18, s.wave - 1) * (boss ? 3.8 : 1));
+      const hp = Math.round(m[2] * 2 * Math.pow(1.105, s.wave - 1) * (boss ? 4 : 1));
       const e = { id: s.nextId++, kind: m[0], boss, hp, maxHp: hp, progress: 95,
         speed: m[3] * (boss ? .7 : 1), reward: boss ? 100 + s.wave * 6 : m[4],
         stun: 0, slow: 0, cooldown: .8, attack: null, hurtUntil: 0, purse: boss ? 24 : 8 };
@@ -397,13 +436,13 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           e.progress += e.speed * (e.slow > 0 ? e.boss ? .72 : .48 : 1) * dt;
           if (near && !e.cooldown) { e.attack = .4; e.cooldown = 1.8; this.emit('enemyAttack', { id: e.id, ...p }); }
         }
-        if (e.progress >= this.route.length) { e.hp = 0; s.base = Math.max(0, s.base - (e.boss ? 5 : 1)); this.emit('leak', { id: e.id }); }
+        if (e.progress >= this.route.length) { e.hp = 0; s.base = Math.max(0, s.base - 1); this.emit('leak', { id: e.id }); }
       }
       s.enemies = s.enemies.filter(e => e.hp > 0);
       if (!s.base) { s.phase = 'lost'; h.attack = null; s.shots=[]; this.emit('end'); return; }
       if (!s.queue.length && !s.enemies.length) {
-        s.gold += 45 + s.wave * 8; s.best = Math.max(s.best, s.wave); s.nextWait = 0;
-        s.phase = s.wave >= 12 ? 'won' : 'build'; h.attack = null; h.target = null; s.shots=[];
+        s.gold += 45 + s.wave * 8; s.wood+=s.wave%5===0?5:1; s.best = Math.max(s.best, s.wave); s.nextWait = 0;
+        s.phase = s.wave >= 60 ? 'won' : 'build'; h.attack = null; h.target = null; s.shots=[];
         this.emit(s.phase === 'won' ? 'end' : 'clear', { bonus: 45 + s.wave * 8 });
       }
     }
@@ -413,8 +452,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       if (r.version === 2) { r.version=3; r.towers=[]; r.shots=[]; r.spellCd=0; r.enemies.forEach(e=>e.slow=0); if(r.phase==='build')r.gold=Math.max(TYPES.arrow.cost,r.gold); }
       const finite = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
       const h = r.hero;
-      if (r.version !== 3 || !h || !JOBS[h.job] || !['build','combat','won','lost'].includes(r.phase) ||
-          !finite(r.gold, 0, 1e9) || !finite(r.base, 0, 20) || !Number.isInteger(r.wave) || !finite(r.wave, 0, 12) ||
+      if (r.version !== 4 || !r.tech || !['attack','haste','greed'].every(k=>Number.isInteger(r.tech[k])&&finite(r.tech[k],0,10)) || !finite(r.wood,0,1e9) || !h || !JOBS[h.job] || !['build','combat','won','lost'].includes(r.phase) ||
+          !finite(r.gold, 0, 1e9) || !finite(r.base, 0, 20) || !Number.isInteger(r.wave) || !finite(r.wave, 0, 60) ||
           !finite(h.x, 0, 720) || !finite(h.y, 0, 600) || !Number.isInteger(h.level) || !finite(h.level, 1, 200) ||
           !['str','agi','vit','weapon','points','xp','skillCd','respawn','cooldown'].every(k => finite(h[k], 0, 1e6)) ||
           !finite(h.hp, 0, stats(r).maxHp) || !finite(r.time, 0, 1e9) || !finite(r.spawn, 0, 10) ||
@@ -422,13 +461,13 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
           !Array.isArray(r.queue) || r.queue.length > 100 || !r.queue.every(k => k === 'boss' || MONSTERS.some(m => m[0] === k)) ||
           !r.fx || !['numbers','flash','impacts','sound'].every(k => typeof r.fx[k] === 'boolean')) throw Error('Invalid hero save');
       const ids = new Set();
-      if (!Array.isArray(r.towers) || r.towers.length>12 || !Array.isArray(r.shots) || r.shots.length>60 || !finite(r.spellCd,0,24)) throw Error('Invalid defense save');
+      if (!Array.isArray(r.towers) || r.towers.length>PADS.length || !Array.isArray(r.shots) || r.shots.length>120 || !finite(r.spellCd,0,24)) throw Error('Invalid defense save');
       const pads = new Set();
       for(const t of r.towers) {
-        if(!Number.isInteger(t.pad)||!PADS[t.pad]||pads.has(t.pad)||!TYPES[t.type]||!Number.isInteger(t.level)||!finite(t.level,1,3)||!finite(t.spent,0,10000)||!finite(t.cooldown,0,3)||!['first','strong'].includes(t.target)) throw Error('Invalid tower save');
+        if(!Number.isInteger(t.pad)||!PADS[t.pad]||pads.has(t.pad)||!TYPES[t.type]||!Number.isInteger(t.level)||!finite(t.level,1,12)||!finite(t.spent,0,1e7)||!finite(t.cooldown,0,3)||!['first','strong'].includes(t.target)) throw Error('Invalid tower save');
         pads.add(t.pad);
       }
-      for(const shot of r.shots) if(!Number.isInteger(shot.enemy)||!TYPES[shot.type]||!finite(shot.damage,0,1000)||!finite(shot.time,0,.2)) throw Error('Invalid shot save');
+      for(const shot of r.shots) if(!Number.isInteger(shot.enemy)||!TYPES[shot.type]||!finite(shot.damage,0,1e7)||!finite(shot.time,0,.2)|| (shot.income!==undefined&&!finite(shot.income,0,100))) throw Error('Invalid shot save');
       for (const e of r.enemies) {
         if (!MONSTERS.some(m => m[0] === e.kind) || !Number.isInteger(e.id) || ids.has(e.id) ||
             !finite(e.maxHp, 1, 1e8) || !finite(e.hp, .001, e.maxHp) || !finite(e.progress, 0, this.route.length) ||
@@ -448,10 +487,20 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
 </script><script>(() => {
   'use strict';
   const { Engine, JOBS, MONSTERS, POINTS, stats, wavePlan, TYPES, PADS, towerStats } = ForestHero;
-  const KEY = 'forestwatch-hero-v2', $ = id => document.getElementById(id);
+  const KEY = 'forestwatch-thief-v1', $ = id => document.getElementById(id);
+  document.querySelector('.brand p').textContent='小偷科技戰役';
+  document.querySelector('.battle-title small').textContent='掠金防線 / 60 波戰役';
+  document.querySelector('.defense-section h2').textContent='兵種部署';
+  $('repair').hidden=true;
+  document.querySelector('.resources span small').textContent='可漏怪';
+  document.querySelector('footer').innerHTML='<span>小偷 TD 玩法改編 · 自訂地圖與數值</span><span>每 5 波首領 · 60 波決戰</span>';
+  const woodNode=document.createElement('span');woodNode.innerHTML='<i data-lucide="trees"></i><b id="wood">0</b><small>木材</small>';document.querySelector('.resources').append(woodNode);
+  const technology=document.createElement('section');technology.className='technology';technology.innerHTML='<h2>科技研究所</h2><div class="economy">累積掠金 <b id="plunder">0</b></div><button data-tech="attack"><span>精煉兵器</span><small></small></button><button data-tech="haste"><span>疾風訓練</span><small></small></button><button data-tech="greed"><span>妙手空空</span><small></small></button><button id="exchange"><span>購買木材</span><small>100 金 → 5 木</small></button>';document.querySelector('.reinforcements').before(technology);
+  for(const [key,title] of Object.entries({attack:'每級增加兵種基礎傷害 18%',haste:'每級增加兵種攻速 8%',greed:'每級增加小偷每擊掠金 1'})) document.querySelector(`[data-tech="${key}"]`).title=title;
   let engine, scene, ready = false, lastSave = 0, uiAt = 0, audio, incomingWave = -1, log = [], saveError = false;
   const sprites = new Map();
   const towerSprites = new Map();
+  const towerAttacks = new Map(), unitJobs={arrow:'assassin',cannon:'smith',frost:'novice'};
   let selectedPad=0, mapMode='build', sideTab='defense', aimingSpell=false, showRanges=true;
   const TOWER_FRAMES=[[79,146,250,474],[465,196,343,422],[949,156,256,469]];
   const label = (id, text) => { if ($(id).textContent !== String(text)) $(id).textContent = text; };
@@ -468,7 +517,10 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     for(const key of ['hero','build']) $('mode-'+key).setAttribute('aria-pressed',mapMode===key);
     label('mode-status',aimingSpell?'落雷目標':mapMode==='build'?`部署防線 · 塔位 ${String(selectedPad+1).padStart(2,'0')}`:'英雄行動');
     label('selected-pad',`塔位 ${String(selectedPad+1).padStart(2,'0')}`);
-    label('tower-count',`${s.towers.length} / 12`);
+    label('tower-count',`${s.towers.length} / ${PADS.length}`);
+    label('wood',s.wood);label('plunder',s.earned);
+    for(const b of document.querySelectorAll('[data-tech]')) {const l=s.tech[b.dataset.tech];b.querySelector('small').textContent=`Lv.${l} · ${150*(l+1)} 金 / ${l+1} 木`;b.disabled=!engine.active()||l>=10||s.gold<150*(l+1)||s.wood<l+1;}
+    $('exchange').disabled=!engine.active()||!engine.canSpend(100);
     $('tower-builds').hidden=!!t; $('tower-details').hidden=!t;
     document.querySelectorAll('[data-build]').forEach(b=>b.disabled=!engine.active()||s.gold<TYPES[b.dataset.build].cost);
     document.querySelectorAll('[data-pad]').forEach(b=>{
@@ -476,10 +528,10 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       b.setAttribute('aria-pressed',Number(b.dataset.pad)===selectedPad);
     });
     if(t){const d=towerStats(t);
-      label('tower-name',d.name);label('tower-level',`Lv.${t.level} / 3`);label('tower-damage',d.damage);label('tower-range',d.range);label('tower-rate',d.rate.toFixed(2)+'s');
+      label('tower-name',d.name);label('tower-level',`Lv.${t.level} / 12${t.type==='arrow'?` · 每擊 +${d.income+s.tech.greed} 金`:t.type==='cannon'?' · 170 範圍嗜血光環':''}`);label('tower-damage',Math.round(d.damage*(1+s.tech.attack*.18)));label('tower-range',d.range);label('tower-rate',(d.rate/(1+s.tech.haste*.08)).toFixed(2)+'s');
       $('tower-art').style.backgroundImage=`url(${scene.towerPreviews[t.type]})`;
-      $('tower-upgrade').querySelector('span').textContent=t.level>=3?'已達最高等級':`升級 · ${d.upgrade}`;
-      $('tower-upgrade').disabled=!engine.active()||t.level>=3||s.gold<d.upgrade;
+      $('tower-upgrade').querySelector('span').textContent=t.level>=12?'已達最高等級':`升級 · ${d.upgrade}`;
+      $('tower-upgrade').disabled=!engine.active()||t.level>=12||s.gold<d.upgrade;
       $('tower-sell').querySelector('span').textContent=`出售 · ${Math.floor(t.spent*.7)}`;$('tower-sell').disabled=!engine.active()||(s.towers.length===1&&s.gold+Math.floor(t.spent*.7)<TYPES.arrow.cost);
       document.querySelectorAll('[data-tower-target]').forEach(b=>{b.setAttribute('aria-pressed',t.target===b.dataset.towerTarget);b.disabled=!engine.active();});
     }
@@ -529,7 +581,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
   function render() {
     if (!ready) return;
     const s = engine.s, h = s.hero, st = stats(s), ended = ['won', 'lost'].includes(s.phase);
-    label('base', s.base); label('gold', s.gold); label('wave', `${s.wave} / 12`);
+    label('base', s.base); label('gold', s.gold); label('wave', `${s.wave} / 60`);
     label('phase', ended ? (s.phase === 'won' ? '金庫守衛成功' : '防線失守') : s.phase === 'build' ? '出戰整備' : `第 ${s.wave} 波 · 攔截敵軍`);
     label('hero-label', `${JOBS[h.job].name} Lv.${h.level}`); label('hp-text', h.hp <= 0 ? `${Math.ceil(h.respawn)} 秒復活` : `${Math.ceil(h.hp)} / ${st.maxHp}`);
     $('hp-fill').style.width = `${h.hp / st.maxHp * 100}%`;
@@ -555,12 +607,12 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     $('pause-layer').hidden = !s.paused || ended; $('end-layer').hidden = !ended;
     if (ended) { label('end-title', s.phase === 'won' ? '守住金庫！' : '防線失守'); label('end-detail', `擊破 ${s.kills} 隻魔物 · 英雄 Lv.${h.level} · 金幣 ${s.gold}`); }
     $('auto').checked = s.auto; document.querySelectorAll('[data-fx]').forEach(b => b.checked = s.fx[b.dataset.fx]);
-    label('best', `${s.best} / 12`);
+    label('best', `${s.best} / 60`);
     renderDefense();
-    const next = Math.min(12, s.wave + (s.phase === 'build' ? 1 : 0));
+    const next = Math.min(60, s.wave + (s.phase === 'build' ? 1 : 0));
     if (incomingWave !== next) {
       incomingWave = next; const plan = wavePlan(next), keys = [...new Set(plan.map(k => k === 'boss' ? 'ghostring' : k))].slice(-6);
-      label('incoming-size', `${plan.length} 隻`); label('incoming-title', next % 4 === 0 ? '首領軍團' : '敵軍名冊');
+      label('incoming-size', `${plan.length} 隻`); label('incoming-title', next % 5 === 0 ? '首領軍團' : '敵軍名冊');
       $('incoming').replaceChildren(...keys.map(k => {
         const el = document.createElement('div'); el.className = 'incoming-unit';
         const img = document.createElement('img'); img.src = mini(k); img.alt = HERO_ASSETS.monsters[k].name;
@@ -586,7 +638,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       TOWER_FRAMES.forEach((r,i)=>this.textures.get('towerAtlas').add('tower-'+i,0,...r));
       this.towerPreviews={};
       for(const [kind,t] of Object.entries(TYPES)){
-        const r=TOWER_FRAMES[t.frame];this.towerPreviews[kind]=preview({key:'towerAtlas'},{x:r[0],y:r[1],w:r[2],h:r[3]});
+        this.towerPreviews[kind]=preview(HERO_ASSETS.jobs[unitJobs[kind]].actions['idle-down'],{x:43,y:45,w:74,h:85});
         const b=document.createElement('button');b.dataset.build=kind;b.className='tower-choice';
         const art=document.createElement('img');art.src=this.towerPreviews[kind];art.alt='';
         const text=document.createElement('span');const title=document.createElement('strong');title.textContent=t.name;const tag=document.createElement('small');tag.textContent=t.tag;text.append(title,tag);
@@ -601,22 +653,21 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         try { localStorage.setItem(KEY + '-recovery', JSON.stringify(saved)); } catch {}
         engine = new Engine(route); journal('存檔格式異常，已保留備份並開啟新戰局。');
       }
-      if(!saved){try{const classic=localStorage.getItem('forestwatch-save-v1');if(classic){engine=Engine.fromClassic(route,JSON.parse(classic));importedClassic=true;}}catch{journal('舊塔防存檔無法轉入，原始存檔仍保留。');}}
+      // This campaign has its own save; older defense campaigns remain untouched.
       const road = this.add.graphics();
-      road.lineStyle(65, 0x344e35, .38); this.path.draw(road); road.lineStyle(57, 0x778a75, .92); this.path.draw(road);
-      road.lineStyle(49, 0xa7af99, .92); this.path.draw(road);
+      road.lineStyle(65, 0x344e35, .38); this.path.draw(road); road.lineStyle(57, 0x807c59, .92); this.path.draw(road);
+      road.lineStyle(49, 0xaaa078, .92); this.path.draw(road);
       for (let n = 0; n < 135; n++) {
         const p=this.path.getPoint((n+.4)/136),t=this.path.getTangent((n+.4)/136);
         for(let row=-1;row<=1;row++){
           const offset=row*15, x=p.x-t.y*offset,y=p.y+t.x*offset;
-          const colors=[0xb9c1aa,0x9eac97,0xaeb69e,0xc2c7b2];
-          road.fillStyle(0x778671,.65);road.fillRoundedRect(x-5,y-4,13,10,2);
-          road.fillStyle(colors[(n+row+5)%4],.85);road.fillRoundedRect(x-6,y-5,12,8,2);
+          const colors=[0xb8b08a,0x8e8868,0xa69e79,0xc3b995];
+          road.fillStyle(colors[(n+row+5)%4],.55);road.fillEllipse(x+Math.sin(n*13+row)*4,y+Math.cos(n*7+row)*3,6+(n%4)*2,4+(n%3));
         }
         if(n%3===0){road.fillStyle(0x638450,.6);road.fillEllipse(p.x-t.y*27,p.y+t.x*27,8,4);}
       }
       this.padGraphics=this.add.graphics().setDepth(3);
-      this.padLabels=PADS.map((p,i)=>this.add.text(p[0],p[1]+12,String(i+1).padStart(2,'0'),{fontSize:'11px',fontFamily:'Arial',color:'#f5f5d9',stroke:'#385d41',strokeThickness:3}).setOrigin(.5).setDepth(4));
+      this.padLabels=[];
       const building=this.textures.get('buildings'),source=building.getSourceImage(),half=source.width/2;
       building.add('gate',0,0,0,half,source.height);building.add('bank',0,half,0,half,source.height);
       this.add.image(44,148,'buildings','gate').setOrigin(.5,1).setDisplaySize(100,100).setDepth(130);
@@ -632,7 +683,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         if(aimingSpell){if(engine.strike(p.x,p.y))aimingSpell=false;this.feedbackEvents();render();return;}
         if(mapMode==='build'){
           const pads=PADS.map((v,i)=>({i,d:Phaser.Math.Distance.Between(p.x,p.y,v[0],v[1]-14)})).sort((a,b)=>a.d-b.d);
-          if(pads[0].d<=55){selectedPad=pads[0].i;sideTab='defense';render();}
+          if(pads[0].d<=28){selectedPad=pads[0].i;sideTab='defense';render();}
+          else note('此處是行軍道路或邊界，請選擇路旁格地。');
           return;
         }
         const candidates = engine.s.enemies.map(e => ({ e, p: engine.pos(e) })).filter(v => Phaser.Math.Distance.Between(p.x, p.y, v.p.x, v.p.y - 17) < 37).sort((a,b) => Phaser.Math.Distance.Between(p.x,p.y,a.p.x,a.p.y-17)-Phaser.Math.Distance.Between(p.x,p.y,b.p.x,b.p.y-17));
@@ -643,7 +695,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       for (const job of ['knight', 'assassin', 'smith']) preview(HERO_ASSETS.jobs[job].actions['idle-down'], { x: 43, y: 45, w: 74, h: 85 }, $('portrait-' + job));
       $('loading').hidden = true; ready = true; icons(); soundButton(); render();
       window.forestwatchHero = { get engine() { return engine; }, get scene() { return scene; }, snapshot: () => engine.export(), key: KEY, render };
-      journal(importedClassic?'原塔防進度已帶入，英雄加入防線。':saved ? '戰局已讀取，點擊繼續即可接著守衛。' : '防線整備中，英雄已抵達。');
+      journal(saved ? '戰局已讀取，點擊繼續即可接著守衛。' : '先部署小偷，命中敵軍即可掠金。舊版戰局保留於原存檔。');
     }
     textPop(x, y, text, color, big = false) {
       const t = this.add.text(x, y, text, { fontFamily: 'Arial, Microsoft JhengHei', fontSize: big ? '27px' : '20px', fontStyle: 'bold', color, stroke: big ? '#753225' : '#273529', strokeThickness: big ? 4 : 3 }).setOrigin(.5).setDepth(1500);
@@ -676,7 +728,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     }
     feedbackEvents() {
       for (const e of engine.drain()) {
+        if(e.type==='plunder') {if(engine.s.fx.numbers)this.textPop(e.x+16,e.y-10,`+${e.money} 金`,'#ffe074');if(engine.s.fx.impacts)this.coins(e.x,e.y);}
         if(e.type==='towerShot'){
+          towerAttacks.set(e.pad,{at:engine.s.time,direction:Math.abs(e.tx-e.x)>Math.abs(e.ty-e.y)?e.tx>e.x?'right':'left':e.ty>e.y?'down':'up'});
           const t=this.add.circle(e.x,e.y,e.kind==='cannon'?5:3,TYPES[e.kind].color).setDepth(1200);this.effectObjects.add(t);
           this.tweens.add({targets:t,x:e.tx,y:e.ty,duration:160,onComplete:()=>{this.effectObjects.delete(t);t.destroy();}});
         }
@@ -704,9 +758,9 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
         if (e.type === 'death') {
           const obj = sprites.get(e.id); if (obj) { obj.dead = true; obj.at = engine.s.time; obj.kind = e.kind; }
         }
-        if (e.type === 'leak') { journal('敵軍闖入金庫，防線耐久下降。'); const obj = sprites.get(e.id); if (obj) { obj.sprite.destroy(); sprites.delete(e.id); } }
+        if (e.type === 'leak') { journal(`漏怪 +1，剩餘容許 ${engine.s.base} 隻。`); const obj = sprites.get(e.id); if (obj) { obj.sprite.destroy(); sprites.delete(e.id); } }
         if (e.type === 'job') { journal(`轉職成功：${JOBS[e.job].name}。`); this.ring(engine.s.hero.x, engine.s.hero.y, JOBS[e.job].color, 80); }
-        if (e.type === 'wave') journal(`第 ${e.wave} 波敵軍抵達${e.wave % 4 === 0 ? '，首領正在接近！' : '。'}`);
+        if (e.type === 'wave') journal(`第 ${e.wave} 波敵軍抵達${e.wave % 5 === 0 ? '，首領正在接近！' : '。'}`);
         if (e.type === 'clear') { journal(`防衛成功，獲得 ${e.bonus} 金幣補給。`); save(); }
         if (e.type === 'level') { journal(`英雄升至 Lv.${e.level}，獲得 2 點能力點。`); this.textPop(e.x, e.y - 90, 'LEVEL UP', '#ffdf83', true); }
         if (e.type === 'heroDeath') journal('英雄倒下，損失 10% 金幣，5 秒後於金庫復活。');
@@ -767,10 +821,13 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
       const g=this.padGraphics;g.clear();
       for(let i=0;i<PADS.length;i++){
         const [x,y]=PADS[i],t=engine.tower(i),selected=i===selectedPad&&mapMode==='build';
-        g.fillStyle(selected?0xf1d68a:0x59774b,t ? .5 : .8);g.fillEllipse(x,y,51,26);g.lineStyle(selected?3:1,selected?0xffefae:0xd9e3a7,.9);g.strokeEllipse(x,y,51,26);
-        this.padLabels[i].setVisible(!t||selected);
+        if(mapMode==='build'||t){g.fillStyle(selected?0xf1d68a:0x59774b,selected?.45:.12);g.fillRect(x-20,y-20,40,40);g.lineStyle(selected?2:1,selected?0xffefae:0xb6c69b,selected?1:.28);g.strokeRect(x-20,y-20,40,40);}
         if(t){let obj=towerSprites.get(i);if(!obj){obj=this.add.image(x,y,'towerAtlas','tower-'+TYPES[t.type].frame).setOrigin(.5,1);towerSprites.set(i,obj);}
-          obj.setTexture('towerAtlas','tower-'+TYPES[t.type].frame).setDisplaySize(64+t.level*4,96+t.level*7).setDepth(y+5);
+          const shot=towerAttacks.get(i),attacking=shot&&engine.s.time-shot.at<.42;
+          const a=HERO_ASSETS.jobs[unitJobs[t.type]].actions[(attacking?'attack':'idle')+'-'+(shot?.direction||'down')];
+          obj.setTexture(a.key,frame(a,attacking?(engine.s.time-shot.at)*1000:engine.s.time*1000,!attacking)).setDisplaySize(110,110).setOrigin(.5,125/160).setDepth(y+5).clearTint();
+          if(t.type==='frost')obj.setTint(0xa4dfff);if(t.type==='cannon')obj.setTint(0xffc0a0);
+          if(t.type==='cannon'&&selected){g.lineStyle(1,0xe87972,.6);g.strokeCircle(x,y,170);}
           if(selected&&showRanges){g.fillStyle(TYPES[t.type].color,.10);g.fillCircle(x,y,towerStats(t).range);g.lineStyle(1,TYPES[t.type].color,.65);g.strokeCircle(x,y,towerStats(t).range);}
         }else if(towerSprites.has(i)){towerSprites.get(i).destroy();towerSprites.delete(i);}
       }
@@ -794,7 +851,7 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     reset() {
       const best = engine.s.best, fx = { ...engine.s.fx };
       sprites.forEach(o => o.sprite.destroy()); sprites.clear(); this.tweens.killAll(); this.effectObjects.forEach(o => o.destroy()); this.effectObjects.clear();
-      towerSprites.forEach(o=>o.destroy());towerSprites.clear();selectedPad=0;mapMode='build';sideTab='defense';aimingSpell=false;
+      towerSprites.forEach(o=>o.destroy());towerSprites.clear();towerAttacks.clear();selectedPad=0;mapMode='build';sideTab='defense';aimingSpell=false;
       engine = new Engine(engine.route); engine.s.best = best; engine.s.fx = fx; this.accumulator = 0; incomingWave = -1;
       save(); journal('新的守衛戰開始。'); render();
     }
@@ -823,6 +880,8 @@ lucide.createIcons({icons});\``);if(typeof document>"u")throw new Error("`create
     if(b.id==='mode-hero')mode('hero');if(b.id==='mode-build')mode('build');
     if(b.dataset.pad!==undefined){selectedPad=Number(b.dataset.pad);mode('build');}
     if(b.dataset.build)engine.buildTower(selectedPad,b.dataset.build);
+    if(b.dataset.tech){if(engine.research(b.dataset.tech))journal('科技研發完成。');}
+    if(b.id==='exchange')engine.exchange();
     if(b.id==='tower-upgrade')engine.upgradeTower(selectedPad);
     if(b.id==='tower-sell')engine.sellTower(selectedPad);
     if(b.dataset.towerTarget)engine.towerTarget(selectedPad,b.dataset.towerTarget);
